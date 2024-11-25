@@ -1,36 +1,28 @@
-# %%
 ################################  Storage_Optimization.ipynb  ####################################
 # Author: Sukhendu Sain
 # Description: Main file of codebase. Houses main code
 # Data: 22-Nov-2024
 #################################################################################
-
-# %%
 # Import Necessary Libraries, Utils, and Config Files
 import utils
 from config import *
 import pandas as pd
-# import importlib
-# importlib.reload(utils)
 
-# %% [markdown]
-# # Data Import and Clean
 
-# %%
+## Data Import and Clean
+
 #### Read FILE:: (AKINS FoMoCo_Piece_Sales_112222_YTD.xlsx) into Dataframe
 df_Akins = utils.read_excel(AKINS_FOMO_FILE_PATH)
-df_Akins
-#utils.print_df(df_Wholesale_Ford) # Print the Dataframe
-# 
+utils.print_df(df_Akins) # Print the Dataframe
 
-# %%
+
 #### Read FILE:: (GPARTS Part Measures.xlsx) into Dataframe
 df_Gparts = utils.read_excel(GPARTS_FILE_PATH)
 utils.print_df(df_Gparts) # Print the Dataframe
 
 print(df_Gparts[df_Gparts["Prod Att - Length"] == 0].shape[0]) # Print the Rows with 0 Dimensions
 
-# %%
+
 #### Read FILE:: (Wholesale JAN_Oct_Parts_Ranking_Counter_Invoices_All_Brands.xlsx) into Dataframe
 df_Wholesale = utils.read_excel(WHOLESALE_FILE_PATH)
 
@@ -40,7 +32,7 @@ df_Wholesale_Ford = df_Wholesale[df_Wholesale['Vendor'] == 'FOR'] # Put only 'Fo
 
 utils.print_df(df_Wholesale_Ford) # Print the Dataframe
 
-# %%
+
 #### Read FILE:: (Service JAN_Oct_Parts_Ranking_ROs_All_Brands.xlsx) into Dataframe
 df_Service = utils.read_excel(SERVICE_FILE_PATH)
 
@@ -50,7 +42,7 @@ df_Service_Ford = df_Service[df_Service['Vendor'] == 'FOR'] # Put only 'Ford' Br
 
 utils.print_df(df_Service_Ford, 100) # Print the Dataframe
 
-# %%
+
 # df_CounterPad = utils.read_excel(COUNTERPAD_FILE_PATH)
 # data = df_CounterPad.iloc[0,0]
 
@@ -95,14 +87,11 @@ utils.print_df(df_Service_Ford, 100) # Print the Dataframe
 # # Print the DataFrame
 # utils.print_df(df, 100)
 
-# %%
 
 
-# %% [markdown]
-# # Data Analysis
-# 
 
-# %%
+## Data Analysis
+
 ## Find Number of Matching Part Numbers in each of the Dataframe
 
 # The Dataframes to match
@@ -119,30 +108,23 @@ for i in range(1, len(all_dfs)):
 print(f"Part numbers common to all DataFrames: {len(common_part_numbers)}")
 utils.print_df(df_Wholesale_Ford[df_Wholesale_Ford["Part Number"].isin(common_part_numbers)], 100)
 
-# %%
+
 ## Find Rows with 0 in either Dimensions
 
 # Print the Rows with 0 Dimensions
 print(f"Numer of Rows with 0 Dimensions: {df_Gparts[df_Gparts["Prod Att - Length"] == 0].shape[0]}, {(df_Gparts[df_Gparts["Prod Att - Length"] == 0].shape[0]/df_Gparts.shape[0])*100}%") 
 utils.print_df(df_Gparts[df_Gparts["Prod Att - Length"] == 0], 10) # Print top 10 Rows with 0 Dimensions
 
-# %%
 
 
-# %% [markdown]
+
 # # Data Processing & Calculation
 
-# %%
 ## Sort the 'Wholesale..' DF by 'Sort Pcs' Columns in Descending order
 # Sold Pcs/Sold = Sales Frequency
-
 df_Wholesale_Ford["Total Sold"] = df_Wholesale_Ford["Sold"] +  df_Wholesale_Ford["Sold.1"]
 df_Wholesale_Ford.sort_values(['Total Sold'], ascending=False, inplace=True)
 
-# %%
-df_Wholesale_Ford
-
-# %%
 data = []
 sum = 0
 totalSoldPCs = int(df_Wholesale_Ford["Total Sold"].sum())
@@ -167,7 +149,7 @@ utils.print_df(df_zones,None)
 with open("htt.txt", "w") as f:
     f.write(df_zones.to_string())
 
-# %%
+
 
 
 
