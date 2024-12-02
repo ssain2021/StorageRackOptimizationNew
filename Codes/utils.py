@@ -94,10 +94,10 @@ def _read_excel(file_path, sheet_name):
     #     print(file_path.split('/')[0] + ": File not found")
     #     return None
     except pd.errors.EmptyDataError:
-        print(file_path.split('/')[0] + ": The file is empty")
+        print(file_path.split('/')[-1] + ": The file is empty")
         return None
     except pd.errors.ParserError:
-        print(file_path.split('/')[0] + ": The file could not be parsed")
+        print(file_path.split('/')[-1] + ": The file could not be parsed")
         return None
     
 
