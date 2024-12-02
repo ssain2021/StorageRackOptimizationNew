@@ -18,6 +18,8 @@ COUNTERPAD_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\Counter_Pad_111
 
 
 ## Variables
+TIRE_PERCENT1 = 0.5
+TIRE_PERCENT2 = 0.9
 SKUcnt = 10
 print_df_after_import = True
 print_df_data_analyse = True

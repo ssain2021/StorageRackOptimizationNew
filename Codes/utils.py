@@ -41,9 +41,7 @@ def print_df(df: pd.DataFrame, rows: int=None, style: str="fancy_grid") -> None:
     """
     _print_df(df, rows, style)
     
-def getTireCarouselModel():
-    
-
+#def getTireCarouselModel():
 
 
 def getRedHotStorage(depth: int, width: int, height: int) -> str:
