@@ -1,6 +1,6 @@
 ################################  utils.py  ####################################
 # Author: Sukhendu Sain
-# Description: Utils file of codebase. Houses main utility functions
+# Description: Utils file of Zone Mapping and Storage Assignment of Warehouse Parts.
 # Data: 22-Nov-2024
 #################################################################################
 
@@ -41,6 +41,10 @@ def print_df(df: pd.DataFrame, rows: int=None, style: str="fancy_grid") -> None:
     """
     _print_df(df, rows, style)
     
+def getTireCarouselModel():
+    
+
+
 
 def getRedHotStorage(depth: int, width: int, height: int) -> str:
     """

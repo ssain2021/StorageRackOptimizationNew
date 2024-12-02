@@ -18,6 +18,7 @@ COUNTERPAD_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\Counter_Pad_111
 
 
 ## Variables
+SKUcnt = 10
 print_df_after_import = True
 print_df_data_analyse = True
 
