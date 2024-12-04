@@ -320,3 +320,45 @@ def _getBlueStorage(depth, width, height):
             subStorage += "48-inch Wide Shelf"
 
     return storageType, subStorage # Return the Values
+
+
+
+
+
+
+
+
+
+
+# def oldDfMainMerge():
+
+#     # It will have the Columns - 'Part Number', 'Part Desc.', 'Active', 'Sold (Pcs.)', '0Dimensions', 'Length/Depth', 'Width', 'Height', 'Zone', 'Storage Type', 'Sub Storage', 'Number of Storage needed'
+#     # It will have all the rows with common part nos. from all 4 Files, having Appropriate Sold Pcs. Values, and Dimensions
+
+#     main_list = []
+
+#     gParts_PartNos = set(df_Gparts['Svc Part Number'])
+
+#     # common_part_numbers = gParts_PartNos & set(df_Akins['Part#'])
+#     # for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Akins['Sold Pcs '], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+#     #     main_list.append([pn, pddesc, "Akins", ac, s, False, ld, w, h, "", "", "", "",""])
+
+#     common_part_numbers = gParts_PartNos & set(df_Wholesale['Part Number'])
+#     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Wholesale['Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+#         main_list.append([pn, pddesc, "", "Wholesale", ac, s, False, ld, w, h, "", "", "", "", ""])
+
+
+#     common_part_numbers = gParts_PartNos & set(df_Service['* indicates a superseded part\nPart Number'])
+#     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Service['Qty Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+#         main_list.append([pn, pddesc, "", "Service", ac, s, False, ld, w, h, "", "", "", "", ""])
+
+#     df_Main = pd.DataFrame(main_list)
+#     df_Main.columns = ['Part#', 'Part Desc.', 'Part Category', 'DataSource', 'Active', 'Sold', '0Dimensions', 'Depth', 'Width', 'Height', 'Zone', 'StorageType', 'SubStorage', 'Num. Storage Required', "Bin Location"]
+#     df_Main = df_Main.sort_values('Sold', ascending=False).reset_index()
+#     df_Main["Zone"] = df_Main["Zone"].astype(str)
+#     df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
+#     df_Main = df_Main[df_Main["0Dimensions"] == False].reset_index()
+#     df_Main.drop(['index', 'level_0'], axis=1, inplace=True)
+#     #df_Main.drop(['index'], axis=1, inplace=True)
+
+#     df_Main.shape[0], utils.print_df(df_Main)
