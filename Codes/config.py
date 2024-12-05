@@ -55,4 +55,3 @@ zones = {
     'Green': totalDaysOfData/green1SaleTP,
     'Blue': totalDaysOfData/blue1SaleTP
 }
-print(zones.items())
