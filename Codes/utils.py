@@ -329,6 +329,25 @@ def _getBlueStorage(depth, width, height):
 
 
 
+# ## BELOW IS OLD FUNCTION -- Main Function for Apply Zoning
+# def Apply_Zoning(df_toBeZoned, Zones=['Red Hot', 'Orange', 'Yellow', 'Green', 'Blue'], thresMultiplier=0.2, soldColName='Sold', zoneColName='Zone', dataTDays=365):
+#     # Initialize Variables
+#     sold_sum = 0 # Keep sum of all Sold until now in the current zone
+#     threshold = thresMultiplier * df_toBeZoned[soldColName].sum() # Threshold of Sum of Sold of each Zone
+#     zoneIndex = 0 # Current Zone Index
+#     zoneStartIndex = 0 # Current Zone Start Index of the Data
+
+#     # Main Loop
+#     for ind in range(df_toBeZoned.shape[0]): # Loop through each Data
+#         if sold_sum > threshold: # Check if the Sum exceeds the threshold
+#             df_toBeZoned.loc[zoneStartIndex:ind, zoneColName] = Zones[zoneIndex] # Set all the Rows from Current zoneStartIndex to now the Current Zone
+#             zoneStartIndex = ind # Set the zoneStartIndex for next zone to the End of current zone
+#             zoneIndex = zoneIndex + 1 # Increment the Zone Index
+#             sold_sum = 0 # Reset the Sold Sum when the current zone ends
+#         else: 
+#             sold_sum = sold_sum + df_toBeZoned[soldColName].iloc[ind] # If not exceeding add Sold Sum to the Sold of the current row
+#     df_toBeZoned.loc[df_toBeZoned[zoneColName] == "", zoneColName] = Zones[-1] #  Set all the leftoever empty zone Rows, to the Last Zone
+
 
 # def oldDfMainMerge():
 
