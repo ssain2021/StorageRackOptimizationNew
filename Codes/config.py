@@ -20,7 +20,7 @@ COUNTERPAD_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\Counter_Pad_111
 
 ## Variables 
 
-print_df_after_import = True
+print_df_after_import = False
 print_df_data_analyse = True
 
 drop0Dims = False
