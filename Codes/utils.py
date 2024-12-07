@@ -118,20 +118,21 @@ def _getRedHotStorage(depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
+    # ^ Raw Bin Dimensions has this format :-  Height_Depth_Width
     raw_bin_dim = ""
 
-    # Start of High Density Drawers
+    # Start of High Density Drawers 
     if (depth <= 24) & (height <= 6) & (width <= 12):
         storageType = "High Density Drawers" # Set Storage Type accordingly
         raw_bin_dim = "06_24_"
-        if (width <= 8): # If the depth is less than 8
-            subStorage = "48-inch Drawer - 6 Compart"
+        if (width <= 8): # If the width is less than 8
+            subStorage = "48-inch Wide Drawer - 6 Compart"
             raw_bin_dim += "48"
         elif (width <= 9): 
-            subStorage = "36-inch Drawer - 4 Compart"
+            subStorage = "36-inch Wide Drawer - 4 Compart"
             raw_bin_dim += "36"
         elif (width <= 12):
-            subStorage = "48-inch Drawer - 4 Compart"
+            subStorage = "48-inch Wide Drawer - 4 Compart"
             raw_bin_dim += "48"
     # Start of Clip Shelving
     elif (depth <= 24) & (height <= 15) & (width <= 48):
@@ -184,7 +185,7 @@ def _getRedHotStorage(depth, width, height):
             subStorage += "96-inch Wide Shelf"
             raw_bin_dim += "96"
 
-    return storageType, subStorage,  raw_bin_dim# Return the Values
+    return storageType, subStorage,  raw_bin_dim # Return the Values
 
 
 def _getOrangeStorage(depth, width, height):
@@ -196,7 +197,7 @@ def _getOrangeStorage(depth, width, height):
     if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
         storageType = "Clip Shelving" # Set Storage Type accordingly
         raw_bin_dim = "15_"
-        if (depth <= 12):  # If the depth is less than 12
+        if (depth <= 12):  # If the depth is less than equal to 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
         elif (depth <= 18):
@@ -211,7 +212,7 @@ def _getOrangeStorage(depth, width, height):
         elif (width <= 48):
             subStorage += "48-inch Wide Shelf"
             raw_bin_dim += "48"
-    elif (depth <= 96) & (height > 12) & (width <= 96): # For Bulk Shelving
+    elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
         raw_bin_dim = f"{height}_"
         if (depth <= 24): # If the depth is less than 24
@@ -269,7 +270,7 @@ def _getYellowStorage(depth, width, height):
         elif (width <= 48):
             subStorage += "48-inch Wide Shelf"
             raw_bin_dim += "48"
-    elif (depth <= 96) & (height > 12) & (width <= 96): # For Bulk Shelving
+    elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
         raw_bin_dim = f"{height}_"
         if (depth <= 24): # If the depth is less than 24
@@ -309,7 +310,7 @@ def _getGreenStorage(depth, width, height):
     subStorage = ""
     raw_bin_dim = ""
     
-    if (depth <= 96) & (height > 12) & (width <= 96): # For Bulk Shelving
+    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
         raw_bin_dim = f"{height}_"
         if (depth <= 24): # If the depth is less than 24
@@ -367,7 +368,7 @@ def _getBlueStorage(depth, width, height):
     subStorage = ""
     raw_bin_dim = ""
     
-    if (depth <= 96) & (height > 12) & (width <= 96): # For Bulk Shelving
+    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
         raw_bin_dim = f"{height}_"
         if (depth <= 24): # If the depth is less than 24
@@ -439,7 +440,7 @@ def _getSpecialityStorage(pdesc, depth, width, height):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
     # For Hanging Storage
-    elif ((depth > 24) | (width > 24) | (height > 24)) & ((depth < 4) | (width < 4) | (height < 24)):
+    elif ((depth >= 24) | (width >= 24) | (height >= 24)) & ((depth <= 4) | (width <= 4) | (height <= 24)):
         storageType = "Hanging Speciality Storage"
         # TODO: Clarify to get the SKU Count and Fix this
         skuCount = 10
