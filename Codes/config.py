@@ -37,6 +37,7 @@ TIRE_PERCENT1 = 0.5
 # Zones=['Red Hot', 'Red', 'Orange', 'Yellow', 'Green', 'Blue']
 # thresMultiplier=0.2
 
+# TODO: Clarify for other Zones
 totalDaysOfData = 300    # Total Days in Dataset
 redHot1SaleTP = 1        # 1 Sell per 1 day
 red1SaleTP =  7          # 1 sell per 7 days (1 week)   

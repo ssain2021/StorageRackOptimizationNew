@@ -427,12 +427,12 @@ def _getSpecialityStorage(pdesc, depth, width, height):
     raw_bin_dim = ""
 
     # Parsing for Battery
-    if pdesc.split("-")[-1].strip() == "Battery":
+    if pdesc.split("-")[-1].strip().lower() == "battery":
         storageType = "Battery Specialty Storage"
         subStorage = "48-inch Deep- 48-inch Wide- 3-Level Sloped Shelving"
         raw_bin_dim = f"{height}_48_48"
     # Parsing for Tire
-    elif pdesc.split("-")[-1].strip() == "Tire":
+    elif pdesc.split("-")[-1].strip().lower() == "tire":
         storageType = "Tire Specialty Storage"
         if depth > 33:
             subStorage = ">33-inches Wide"
