@@ -434,13 +434,21 @@ def _getSpecialityStorage(pdesc, depth, width, height):
     # Parsing for Tire
     elif pdesc.split("-")[-1].strip() == "Tire":
         storageType = "Tire Specialty Storage"
-        subStorage = ""           
+        if depth > 33:
+            subStorage = ">33-inches Wide"
+           # raw_bin_dim = f""
+        elif depth <= 28:
+            subStorage = "<=28-inches Wide"
+           # raw_bin_dim = f""
+        else:
+            subStorage = "28-33-inches Wide"
+           # raw_bin_dim = f""
     # Parsing for Bumper Cover
     elif ("Bumper" in pdesc) & ("Cover" in pdesc):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
     # For Hanging Storage
-    elif ((depth >= 24) | (width >= 24) | (height >= 24)) & ((depth <= 4) | (width <= 4) | (height <= 24)):
+    elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Speciality Storage"
         # TODO: Clarify to get the SKU Count and Fix this
         skuCount = 10

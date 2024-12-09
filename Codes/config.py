@@ -26,8 +26,6 @@ print_df_data_analyse = True
 drop0Dims = False
 
 TIRE_PERCENT1 = 0.5
-TIRE_PERCENT2 = 0.9
-
 
 
 
