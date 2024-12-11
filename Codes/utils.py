@@ -430,7 +430,7 @@ def _getSpecialityStorage(pdesc, depth, width, height):
     if pdesc.split("-")[-1].strip().lower() == "battery":
         storageType = "Battery Specialty Storage"
         subStorage = "48-inch Deep- 48-inch Wide- 3-Level Sloped Shelving"
-        raw_bin_dim = f"BR_48_48"
+        raw_bin_dim = f"BR_16_48_48"
     # Parsing for Tire   TIRE  has Liner Stacking. Only Width Of Rack and Width Of Tire Considered
     elif pdesc.split("-")[-1].strip().lower() == "tire":
         storageType = "Tire Specialty Storage"
