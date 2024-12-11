@@ -124,7 +124,7 @@ def _getRedHotStorage(depth, width, height):
     # Start of High Density Drawers 
     if (depth <= 24) & (height <= 6) & (width <= 12):
         storageType = "High Density Drawers" # Set Storage Type accordingly
-        raw_bin_dim = "06_24_"
+        raw_bin_dim = "D_06_24_"
         if (width <= 8): # If the width is less than 8
             subStorage = "48-inch Wide Drawer - 6 Compart"
             raw_bin_dim += "48"
@@ -137,7 +137,7 @@ def _getRedHotStorage(depth, width, height):
     # Start of Clip Shelving
     elif (depth <= 24) & (height <= 15) & (width <= 48):
         storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "15_"
+        raw_bin_dim = "C_15_"
         if (depth <= 12):  # If the depth is less than 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
@@ -156,7 +156,7 @@ def _getRedHotStorage(depth, width, height):
     # Start of Bulk Storage        
     elif (depth <= 96) & (height >= 12) & (width <= 96):
         storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"{height}_"
+        raw_bin_dim = f"B_{height}_"
         if (depth <= 24): # If the depth is less than 24
             subStorage = "24-inch Deep - "
             raw_bin_dim += "24_"
@@ -196,7 +196,7 @@ def _getOrangeStorage(depth, width, height):
 
     if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
         storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "15_"
+        raw_bin_dim = "C_15_"
         if (depth <= 12):  # If the depth is less than equal to 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
@@ -214,7 +214,7 @@ def _getOrangeStorage(depth, width, height):
             raw_bin_dim += "48"
     elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"{height}_"
+        raw_bin_dim = f"B_{height}_"
         if (depth <= 24): # If the depth is less than 24
             subStorage = "24-inch Deep - "
             raw_bin_dim += "24_"
@@ -254,7 +254,7 @@ def _getYellowStorage(depth, width, height):
 
     if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
         storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "15_"
+        raw_bin_dim = "C_15_"
         if (depth <= 12):  # If the depth is less than 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
@@ -272,7 +272,7 @@ def _getYellowStorage(depth, width, height):
             raw_bin_dim += "48"
     elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"{height}_"
+        raw_bin_dim = f"B_{height}_"
         if (depth <= 24): # If the depth is less than 24
             subStorage = "24-inch Deep - "
             raw_bin_dim += "24_"
@@ -312,7 +312,7 @@ def _getGreenStorage(depth, width, height):
     
     if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"{height}_"
+        raw_bin_dim = f"B_{height}_"
         if (depth <= 24): # If the depth is less than 24
             subStorage = "24-inch Deep - "
             raw_bin_dim += "24_"
@@ -342,7 +342,7 @@ def _getGreenStorage(depth, width, height):
             raw_bin_dim += "96"
     elif (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
         storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "15_"
+        raw_bin_dim = "C_15_"
         if (depth <= 12):  # If the depth is less than 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
@@ -370,7 +370,7 @@ def _getBlueStorage(depth, width, height):
     
     if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
         storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"{height}_"
+        raw_bin_dim = f"B_{height}_"
         if (depth <= 24): # If the depth is less than 24
             subStorage = "24-inch Deep - "
             raw_bin_dim += "24_"
@@ -398,9 +398,9 @@ def _getBlueStorage(depth, width, height):
         elif (width <= 96):
             subStorage += "96-inch Wide Shelf"
             raw_bin_dim += "96"
-    elif (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
+    elif (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving: D
         storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "15_"
+        raw_bin_dim = "C_15_"
         if (depth <= 12):  # If the depth is less than 12
             subStorage = "12-inch Deep - "
             raw_bin_dim += "12_"
@@ -430,26 +430,26 @@ def _getSpecialityStorage(pdesc, depth, width, height):
     if pdesc.split("-")[-1].strip().lower() == "battery":
         storageType = "Battery Specialty Storage"
         subStorage = "48-inch Deep- 48-inch Wide- 3-Level Sloped Shelving"
-        raw_bin_dim = f"{height}_48_48"
-    # Parsing for Tire
+        raw_bin_dim = f"BR_48_48"
+    # Parsing for Tire   TIRE  has Liner Stacking. Only Width Of Rack and Width Of Tire Considered
     elif pdesc.split("-")[-1].strip().lower() == "tire":
         storageType = "Tire Specialty Storage"
+        raw_bin_dim = f"TR_0_0_0"
         if depth > 33:
             subStorage = ">33-inches Wide"
-           # raw_bin_dim = f""
         elif depth <= 28:
             subStorage = "<=28-inches Wide"
-           # raw_bin_dim = f""
         else:
             subStorage = "28-33-inches Wide"
-           # raw_bin_dim = f""
     # Parsing for Bumper Cover
     elif ("Bumper" in pdesc) & ("Cover" in pdesc):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
+        raw_bin_dim = f"BC_0_0_0"
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Speciality Storage"
+        raw_bin_dim = f"HS_0_0_0"
         # TODO: Clarify to get the SKU Count and Fix this
         skuCount = 10
         if skuCount <= 10: 
@@ -460,6 +460,145 @@ def _getSpecialityStorage(pdesc, depth, width, height):
         return False, storageType, subStorage, raw_bin_dim
 
     return True, storageType, subStorage, raw_bin_dim
+
+
+
+
+
+
+
+# def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
+#     print(f"Initial call: shelf_depth={shelf_depth}, shelf_width={shelf_width}, shelf_height={shelf_height}, "
+#           f"part_depth={part_depth}, part_width={part_width}, part_height={part_height}")
+
+#     if (part_depth * part_width * part_height) > (shelf_depth * shelf_width * shelf_height):
+#         print("Returning 0 due to invalid dimensions")
+#         return 0, None
+
+#     def calculate_parts_for_orientation(orientation):
+#         print(f"Calculating for orientation: {orientation}")
+#         if orientation == 'depth':
+#             if (part_depth > shelf_depth) or (part_width > shelf_width) or (part_height > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+#             print(f"Base parts for depth: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
+#             print(f"Additional parts for depth: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+#         elif orientation == 'height':
+#             if (part_height > shelf_depth) or (part_width > shelf_width) or (part_depth > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+#             print(f"Base parts for height: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
+#             print(f"Additional parts for height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+#         elif orientation == 'width':
+#             if (part_width > shelf_depth) or (part_depth > shelf_width) or (part_height > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+#             print(f"Base parts for width: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_depth, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
+#             print(f"Additional parts for width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+#         elif orientation == 'depth_height':
+#             if (part_depth > shelf_depth) or (part_height > shelf_width) or (part_width > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
+#             print(f"Base parts for depth_height: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
+#             print(f"Additional parts for depth_height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+#         elif orientation == 'depth_width':
+#             if (part_height > shelf_depth) or (part_depth > shelf_width) or (part_width > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_height) * (shelf_width // part_depth)) * (shelf_height // part_width)
+#             print(f"Base parts for depth_width: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
+#             print(f"Additional parts for depth_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+#         elif orientation == 'height_width':
+#             if (part_width > shelf_depth) or (part_height > shelf_width) or (part_depth > shelf_height): return 0
+#             base_parts = ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
+#             print(f"Base parts for height_width: {base_parts}")
+#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
+#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
+#             print(f"Additional parts for height_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+
+#     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
+    
+#     max_parts = 0
+#     best_orientation = None
+    
+#     for orientation in orientations:
+#         parts = calculate_parts_for_orientation(orientation)
+#         print(f"Total parts for {orientation}: {parts}")
+#         if parts > max_parts:
+#             max_parts = parts
+#             best_orientation = orientation
+    
+#     print(f"Final result: Max parts = {max_parts}, Best orientation = {best_orientation}")
+#     return max_parts, best_orientation
+
+# # Example usage
+# shelf_depth = 12
+# shelf_width = 48
+# shelf_height = 12
+# part_depth = 8
+# part_width = 8
+# part_height = 2
+
+# max_parts, best_orientation = calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+
+# print(f"\nMaximum number of parts: {max_parts}")
+# print(f"Best orientation: {best_orientation}")
+
+
+
+
+# def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
+#     def calculate_base_parts(orientation):
+#         if orientation == 'depth':
+#             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+#         elif orientation == 'height':
+#             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+#         elif orientation == 'width':
+#             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+#         elif orientation == 'depth_height':
+#             return ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
+#         elif orientation == 'depth_width':
+#             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+#         elif orientation == 'height_width':
+#             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+#         elif orientation == 'width_depth':
+#             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+#         elif orientation == 'width_height':
+#             return ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
+    
+        
+#     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
+    
+#     max_parts = 0
+#     best_orientation = None
+    
+#     for orientation in orientations:
+#         base_parts = calculate_base_parts(orientation)
+        
+#         total_parts = base_parts
+        
+#         if total_parts > max_parts:
+#             max_parts = total_parts
+#             best_orientation = orientation
+    
+#     return max_parts, best_orientation
+
 
 
 
