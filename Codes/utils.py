@@ -379,7 +379,7 @@ def _getSpecialityStorage(pdesc, depth, width, height):
         raw_bin_dim = f"BC_0_0_0"       ## BC_Height_Width_Depth 
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
-        storageType = "Hanging Speciality Storage"
+        storageType = "Hanging Specialty Storage"
         raw_bin_dim = f"HS_0_0_0"
         # TODO: Clarify to get the SKU Count and Fix this
         skuCount = 10
