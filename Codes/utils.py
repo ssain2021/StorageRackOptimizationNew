@@ -89,7 +89,7 @@ def getGreenBlueStorage(depth: int, width: int, height: int) -> str:
     return storageType, subStorage, raw_bin_dim
 
 
-def getSpecialityStorage(pdesc, depth, width, height) -> str:
+def getSpecialtyStorage(pdesc, depth, width, height) -> str:
     """
     Determines if an item requires special storage and assigns appropriate storage type.
     
@@ -102,7 +102,7 @@ def getSpecialityStorage(pdesc, depth, width, height) -> str:
     Returns:
         tuple: (isSpec, storageType, subStorage, raw_bin_dim)
     """
-    isSpec, storageType, subStorage, raw_bin_dim = _getSpecialityStorage(pdesc, depth, width, height)
+    isSpec, storageType, subStorage, raw_bin_dim = _getSpecialtyStorage(pdesc, depth, width, height)
     return isSpec, storageType, subStorage, raw_bin_dim
 
 ##################### FUNCTION INITS ##############################
@@ -351,7 +351,7 @@ def _getGreenBlueStorage(depth, width, height):
 
 
 
-def _getSpecialityStorage(pdesc, depth, width, height):
+def _getSpecialtyStorage(pdesc, depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
