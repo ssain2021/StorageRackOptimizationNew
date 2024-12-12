@@ -25,7 +25,7 @@ print_df_data_analyse = True
 
 drop0Dims = False
 
-TIRE_PERCENT1 = 0.5
+TIRE_PERCENT1 = 0.5      ##  50% of tires are 33 inches, or more
 
 
 

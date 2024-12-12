@@ -13,18 +13,18 @@ from tabulate import tabulate
 def read_excel(file_path: str, sheet_name:int=0) -> pd.DataFrame:
     """
     Reads an Excel file and returns a Pandas DataFrame.
-
+    
     Args:
         file_path (str): Path to the Excel file.
-        sheet_name (str): Name or index of the sheet in the Excel file.
-
+        sheet_name (int): Index of the sheet in the Excel file.
+    
     Returns:
-        pandas.DataFrame: A DataFrame containing the data from the specified Excel sheet if no Error.
-
-    Prints:
-        "File not found": If the specified file does not exist.
-        "The file is empty": If the file is empty.
-        "The file could not be parsed": If there's an error parsing the file.
+        pandas.DataFrame: A DataFrame containing the data from the specified Excel sheet.
+    
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+        pd.errors.ParserError: If there's an error parsing the file.
     """
     df = _read_excel(file_path, sheet_name)
     return df
@@ -40,52 +40,67 @@ def print_df(df: pd.DataFrame, rows: int=None, style: str="fancy_grid") -> None:
         style (str): Table format style. Defaults to "fancy_grid".
     """
     _print_df(df, rows, style)
-    
-#def getTireCarouselModel():
 
 
 def getRedHotStorage(depth: int, width: int, height: int) -> str:
     """
-
+    Determines the storage type for Red Hot zone items.
+    
+    Args:
+        depth (int): Depth of the item.
+        width (int): Width of the item.
+        height (int): Height of the item.
+    
+    Returns:
+        tuple: (storageType, subStorage, raw_bin_dim)
     """
     storageType, subStorage, raw_bin_dim = _getRedHotStorage(depth, width, height)
     return storageType, subStorage, raw_bin_dim
 
-def getOrangeStorage(depth: int, width: int, height: int) -> str:
+def getOrangeYellowStorage(depth: int, width: int, height: int) -> str:
     """
-
+    Determines the storage type for Orange and Yellow zone items.
+    
+    Args:
+        depth (int): Depth of the item.
+        width (int): Width of the item.
+        height (int): Height of the item.
+    
+    Returns:
+        tuple: (storageType, subStorage, raw_bin_dim)
     """
-    storageType, subStorage, raw_bin_dim = _getOrangeStorage(depth, width, height)
+    storageType, subStorage, raw_bin_dim = _getOrangeYellowStorage(depth, width, height)
     return storageType, subStorage, raw_bin_dim
 
 
-def getYellowStorage(depth: int, width: int, height: int) -> str:
+def getGreenBlueStorage(depth: int, width: int, height: int) -> str:
     """
-
+    Determines the storage type for Green and Blue zone items.
+    
+    Args:
+        depth (int): Depth of the item.
+        width (int): Width of the item.
+        height (int): Height of the item.
+    
+    Returns:
+        tuple: (storageType, subStorage, raw_bin_dim)
     """
-    storageType, subStorage, raw_bin_dim = _getYellowStorage(depth, width, height)
-    return storageType, subStorage, raw_bin_dim
-
-
-def getGreenStorage(depth: int, width: int, height: int) -> str:
-    """
-
-    """
-    storageType, subStorage, raw_bin_dim = _getGreenStorage(depth, width, height)
-    return storageType, subStorage, raw_bin_dim
-
-
-def getBlueStorage(depth: int, width: int, height: int) -> str:
-    """
-
-    """
-    storageType, subStorage, raw_bin_dim = _getBlueStorage(depth, width, height)
+    storageType, subStorage, raw_bin_dim = _getGreenBlueStorage(depth, width, height)
     return storageType, subStorage, raw_bin_dim
 
 
 def getSpecialityStorage(pdesc, depth, width, height) -> str:
     """
-
+    Determines if an item requires special storage and assigns appropriate storage type.
+    
+    Args:
+        pdesc (str): Part description.
+        depth (int): Depth of the item.
+        width (int): Width of the item.
+        height (int): Height of the item.
+    
+    Returns:
+        tuple: (isSpec, storageType, subStorage, raw_bin_dim)
     """
     isSpec, storageType, subStorage, raw_bin_dim = _getSpecialityStorage(pdesc, depth, width, height)
     return isSpec, storageType, subStorage, raw_bin_dim
@@ -118,306 +133,222 @@ def _getRedHotStorage(depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
-    # ^ Raw Bin Dimensions has this format :-  Height_Depth_Width
+    # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
     raw_bin_dim = ""
 
-    # Start of High Density Drawers 
-    if (depth <= 24) & (height <= 6) & (width <= 12):
-        storageType = "High Density Drawers" # Set Storage Type accordingly
-        raw_bin_dim = "D_06_24_"
-        if (width <= 8): # If the width is less than 8
-            subStorage = "48-inch Wide Drawer - 6 Compart"
-            raw_bin_dim += "48"
-        elif (width <= 9): 
-            subStorage = "36-inch Wide Drawer - 4 Compart"
-            raw_bin_dim += "36"
-        elif (width <= 12):
-            subStorage = "48-inch Wide Drawer - 4 Compart"
-            raw_bin_dim += "48"
-    # Start of Clip Shelving
-    elif (depth <= 24) & (height <= 15) & (width <= 48):
-        storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "C_15_"
-        if (depth <= 12):  # If the depth is less than 12
-            subStorage = "12-inch Deep - "
-            raw_bin_dim += "12_"
-        elif (depth <= 18):
-            subStorage = "18-inch Deep - "
-            raw_bin_dim += "18_"
-        elif (depth <= 24):
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        if (width <= 36):
-            subStorage += "36-inch Wide Shelf"
-            raw_bin_dim += "36"
-        elif (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
+    for width, depth in [[width, depth], [depth, width]]:
+        # Start of High Density Drawers 
+        if (depth <= 24) & (height <= 6) & (width <= 12):
+            storageType = "High Density Drawers" # Set Storage Type accordingly
+            raw_bin_dim = "D_06_24_"
+            if (width <= 8): # If the width is less than 8
+                subStorage = "48-inch Wide Drawer - 6 Compart"
+                raw_bin_dim += "48"
+            elif (width <= 9): 
+                subStorage = "36-inch Wide Drawer - 4 Compart"
+                raw_bin_dim += "36"
+            elif (width <= 12):
+                subStorage = "48-inch Wide Drawer - 4 Compart"
+                raw_bin_dim += "48"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
+        
+    for width, depth in [[width, depth], [depth, width]]:
+        # Start of Clip Shelving
+        if (depth <= 24) & (height <= 15) & (width <= 48):
+            storageType = "Clip Shelving" # Set Storage Type accordingly
+            raw_bin_dim = "C_15_"
+            if (depth <= 12):  # If the depth is less than 12
+                subStorage = "12-inch Deep - "
+                raw_bin_dim += "12_"
+            elif (depth <= 18):
+                subStorage = "18-inch Deep - "
+                raw_bin_dim += "18_"
+            elif (depth <= 24):
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            if (width <= 36):
+                subStorage += "36-inch Wide Shelf"
+                raw_bin_dim += "36"
+            elif (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
+ 
     # Start of Bulk Storage        
-    elif (depth <= 96) & (height >= 12) & (width <= 96):
-        storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"B_{height}_"
-        if (depth <= 24): # If the depth is less than 24
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        elif (depth <= 36):
-            subStorage = "36-inch Deep - "
-            raw_bin_dim += "36_"
-        elif (depth <= 42):
-            subStorage = "42-inch Deep - "
-            raw_bin_dim += "42_"
-        elif (depth <= 48):
-            subStorage = "48-inch Deep - "
-            raw_bin_dim += "48_"
-        elif (depth <= 72):
-            subStorage = "72-inch Deep - "
-            raw_bin_dim += "72_"
-        elif (depth <= 96):
-            subStorage = "96-inch Deep - "
-            raw_bin_dim += "96_"
-        if (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-        elif (width <= 72):
-            subStorage += "72-inch Wide Shelf"
-            raw_bin_dim += "72"
-        elif (width <= 96):
-            subStorage += "96-inch Wide Shelf"
-            raw_bin_dim += "96"
-
+    for width, depth in [[width, depth], [depth, width]]:
+        if (depth <= 96) & (height >= 12) & (width <= 96):
+            storageType = "Bulk Storage" # Set Storage Type accordingly
+            raw_bin_dim = "B_48_"      ### ~  ASSUMPTION: BULK RACK HEIGHT LIMIT 48 Inches
+            if (depth <= 24): # If the depth is less than 24
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            elif (depth <= 36):
+                subStorage = "36-inch Deep - "
+                raw_bin_dim += "36_"
+            elif (depth <= 42):
+                subStorage = "42-inch Deep - "
+                raw_bin_dim += "42_"
+            elif (depth <= 48):
+                subStorage = "48-inch Deep - "
+                raw_bin_dim += "48_"
+            elif (depth <= 72):
+                subStorage = "72-inch Deep - "
+                raw_bin_dim += "72_"
+            elif (depth <= 96):
+                subStorage = "96-inch Deep - "
+                raw_bin_dim += "96_"
+            if (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+            elif (width <= 72):
+                subStorage += "72-inch Wide Shelf"
+                raw_bin_dim += "72"
+            elif (width <= 96):
+                subStorage += "96-inch Wide Shelf"
+                raw_bin_dim += "96"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
+        
     return storageType, subStorage,  raw_bin_dim # Return the Values
 
 
-def _getOrangeStorage(depth, width, height):
+def _getOrangeYellowStorage(depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
     raw_bin_dim = ""
 
-    if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
-        storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "C_15_"
-        if (depth <= 12):  # If the depth is less than equal to 12
-            subStorage = "12-inch Deep - "
-            raw_bin_dim += "12_"
-        elif (depth <= 18):
-            subStorage = "18-inch Deep - "
-            raw_bin_dim += "18_"
-        elif (depth <= 24):
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        if (width <= 36):
-            subStorage += "36-inch Wide Shelf"
-            raw_bin_dim += "36"
-        elif (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-    elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
-        storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"B_{height}_"
-        if (depth <= 24): # If the depth is less than 24
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        elif (depth <= 36):
-            subStorage = "36-inch Deep - "
-            raw_bin_dim += "36_"
-        elif (depth <= 42):
-            subStorage = "42-inch Deep - "
-            raw_bin_dim += "42_"
-        elif (depth <= 48):
-            subStorage = "48-inch Deep - "
-            raw_bin_dim += "48_"
-        elif (depth <= 72):
-            subStorage = "72-inch Deep - "
-            raw_bin_dim += "72_"
-        elif (depth <= 96):
-            subStorage = "96-inch Deep - "
-            raw_bin_dim += "96_"
-        if (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-        elif (width <= 72):
-            subStorage += "72-inch Wide Shelf"
-            raw_bin_dim += "72"
-        elif (width <= 96):
-            subStorage += "96-inch Wide Shelf"
-            raw_bin_dim += "96"
+    for width, depth in [[width, depth], [depth, width]]:
+        if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
+            storageType = "Clip Shelving" # Set Storage Type accordingly
+            raw_bin_dim = "C_15_"
+            if (depth <= 12):  # If the depth is less than equal to 12
+                subStorage = "12-inch Deep - "
+                raw_bin_dim += "12_"
+            elif (depth <= 18):
+                subStorage = "18-inch Deep - "
+                raw_bin_dim += "18_"
+            elif (depth <= 24):
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            if (width <= 36):
+                subStorage += "36-inch Wide Shelf"
+                raw_bin_dim += "36"
+            elif (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
+
+    # For BULK STORAGE
+    for width, depth in [[width, depth], [depth, width]]:
+        if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+            storageType = "Bulk Storage" # Set Storage Type accordingly
+            raw_bin_dim = "B_48_"
+            if (depth <= 24): # If the depth is less than 24
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            elif (depth <= 36):
+                subStorage = "36-inch Deep - "
+                raw_bin_dim += "36_"
+            elif (depth <= 42):
+                subStorage = "42-inch Deep - "
+                raw_bin_dim += "42_"
+            elif (depth <= 48):
+                subStorage = "48-inch Deep - "
+                raw_bin_dim += "48_"
+            elif (depth <= 72):
+                subStorage = "72-inch Deep - "
+                raw_bin_dim += "72_"
+            elif (depth <= 96):
+                subStorage = "96-inch Deep - "
+                raw_bin_dim += "96_"
+            if (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+            elif (width <= 72):
+                subStorage += "72-inch Wide Shelf"
+                raw_bin_dim += "72"
+            elif (width <= 96):
+                subStorage += "96-inch Wide Shelf"
+                raw_bin_dim += "96"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
 
     return storageType, subStorage, raw_bin_dim # Return the Values
 
 
-def _getYellowStorage(depth, width, height):
-    # Initialize the empty Variables
-    storageType = ""
-    subStorage = ""
-    raw_bin_dim = ""
 
-    if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
-        storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "C_15_"
-        if (depth <= 12):  # If the depth is less than 12
-            subStorage = "12-inch Deep - "
-            raw_bin_dim += "12_"
-        elif (depth <= 18):
-            subStorage = "18-inch Deep - "
-            raw_bin_dim += "18_"
-        elif (depth <= 24):
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        if (width <= 36):
-            subStorage += "36-inch Wide Shelf"
-            raw_bin_dim += "36"
-        elif (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-    elif (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
-        storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"B_{height}_"
-        if (depth <= 24): # If the depth is less than 24
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        elif (depth <= 36):
-            subStorage = "36-inch Deep - "
-            raw_bin_dim += "36_"
-        elif (depth <= 42):
-            subStorage = "42-inch Deep - "
-            raw_bin_dim += "42_"
-        elif (depth <= 48):
-            subStorage = "48-inch Deep - "
-            raw_bin_dim += "48_"
-        elif (depth <= 72):
-            subStorage = "72-inch Deep - "
-            raw_bin_dim += "72_"
-        elif (depth <= 96):
-            subStorage = "96-inch Deep - "
-            raw_bin_dim += "96_"
-        if (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-        elif (width <= 72):
-            subStorage += "72-inch Wide Shelf"
-            raw_bin_dim += "72"
-        elif (width <= 96):
-            subStorage += "96-inch Wide Shelf"
-            raw_bin_dim += "96"
-
-    return storageType, subStorage, raw_bin_dim # Return the Values
-
-
-def _getGreenStorage(depth, width, height):
+def _getGreenBlueStorage(depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
     raw_bin_dim = ""
     
-    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
-        storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"B_{height}_"
-        if (depth <= 24): # If the depth is less than 24
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        elif (depth <= 36):
-            subStorage = "36-inch Deep - "
-            raw_bin_dim += "36_"
-        elif (depth <= 42):
-            subStorage = "42-inch Deep - "
-            raw_bin_dim += "42_"
-        elif (depth <= 48):
-            subStorage = "48-inch Deep - "
-            raw_bin_dim += "48_"
-        elif (depth <= 72):
-            subStorage = "72-inch Deep - "
-            raw_bin_dim += "72_"
-        elif (depth <= 96):
-            subStorage = "96-inch Deep - "
-            raw_bin_dim += "96_"
-        if (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-        elif (width <= 72):
-            subStorage += "72-inch Wide Shelf"
-            raw_bin_dim += "72"
-        elif (width <= 96):
-            subStorage += "96-inch Wide Shelf"
-            raw_bin_dim += "96"
-    elif (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
-        storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "C_15_"
-        if (depth <= 12):  # If the depth is less than 12
-            subStorage = "12-inch Deep - "
-            raw_bin_dim += "12_"
-        elif (depth <= 18):
-            subStorage = "18-inch Deep - "
-            raw_bin_dim += "18_"
-        elif (depth <= 24):
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        if (width <= 36):
-            subStorage += "36-inch Wide Shelf"
-            raw_bin_dim += "36"
-        elif (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-
-    return storageType, subStorage, raw_bin_dim # Return the Values
-
-
-def _getBlueStorage(depth, width, height):
-    # Initialize the empty Variables
-    storageType = ""
-    subStorage = ""
-    raw_bin_dim = ""
+    # For Bulk Shelving
+    for width, depth in [[width, depth], [depth, width]]:
+        if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+            storageType = "Bulk Storage" # Set Storage Type accordingly
+            raw_bin_dim = f"B_48_"
+            if (depth <= 24): # If the depth is less than 24
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            elif (depth <= 36):
+                subStorage = "36-inch Deep - "
+                raw_bin_dim += "36_"
+            elif (depth <= 42):
+                subStorage = "42-inch Deep - "
+                raw_bin_dim += "42_"
+            elif (depth <= 48):
+                subStorage = "48-inch Deep - "
+                raw_bin_dim += "48_"
+            elif (depth <= 72):
+                subStorage = "72-inch Deep - "
+                raw_bin_dim += "72_"
+            elif (depth <= 96):
+                subStorage = "96-inch Deep - "
+                raw_bin_dim += "96_"
+            if (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+            elif (width <= 72):
+                subStorage += "72-inch Wide Shelf"
+                raw_bin_dim += "72"
+            elif (width <= 96):
+                subStorage += "96-inch Wide Shelf"
+                raw_bin_dim += "96"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
     
-    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
-        storageType = "Bulk Storage" # Set Storage Type accordingly
-        raw_bin_dim = f"B_{height}_"
-        if (depth <= 24): # If the depth is less than 24
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        elif (depth <= 36):
-            subStorage = "36-inch Deep - "
-            raw_bin_dim += "36_"
-        elif (depth <= 42):
-            subStorage = "42-inch Deep - "
-            raw_bin_dim += "42_"
-        elif (depth <= 48):
-            subStorage = "48-inch Deep - "
-            raw_bin_dim += "48_"
-        elif (depth <= 72):
-            subStorage = "72-inch Deep - "
-            raw_bin_dim += "72_"
-        elif (depth <= 96):
-            subStorage = "96-inch Deep - "
-            raw_bin_dim += "96_"
-        if (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
-        elif (width <= 72):
-            subStorage += "72-inch Wide Shelf"
-            raw_bin_dim += "72"
-        elif (width <= 96):
-            subStorage += "96-inch Wide Shelf"
-            raw_bin_dim += "96"
-    elif (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving: D
-        storageType = "Clip Shelving" # Set Storage Type accordingly
-        raw_bin_dim = "C_15_"
-        if (depth <= 12):  # If the depth is less than 12
-            subStorage = "12-inch Deep - "
-            raw_bin_dim += "12_"
-        elif (depth <= 18):
-            subStorage = "18-inch Deep - "
-            raw_bin_dim += "18_"
-        elif (depth <= 24):
-            subStorage = "24-inch Deep - "
-            raw_bin_dim += "24_"
-        if (width <= 36):
-            subStorage += "36-inch Wide Shelf"
-            raw_bin_dim += "36"
-        elif (width <= 48):
-            subStorage += "48-inch Wide Shelf"
-            raw_bin_dim += "48"
+        # For Clip Shelving:
+    for width, depth in [[width, depth], [depth, width]]:
+        if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
+            storageType = "Clip Shelving" # Set Storage Type accordingly
+            raw_bin_dim = "C_15_"
+            if (depth <= 12):  # If the depth is less than 12
+                subStorage = "12-inch Deep - "
+                raw_bin_dim += "12_"
+            elif (depth <= 18):
+                subStorage = "18-inch Deep - "
+                raw_bin_dim += "18_"
+            elif (depth <= 24):
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            if (width <= 36):
+                subStorage += "36-inch Wide Shelf"
+                raw_bin_dim += "36"
+            elif (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
 
     return storageType, subStorage, raw_bin_dim # Return the Values
+
+
+
 
 
 def _getSpecialityStorage(pdesc, depth, width, height):
@@ -436,16 +367,16 @@ def _getSpecialityStorage(pdesc, depth, width, height):
         storageType = "Tire Specialty Storage"
         raw_bin_dim = f"TR_0_0_0"
         if depth > 33:
-            subStorage = ">33-inches Wide"
+            subStorage = "33-inches Dia"
         elif depth <= 28:
-            subStorage = "<=28-inches Wide"
+            subStorage = "28-inches Dia"
         else:
-            subStorage = "28-33-inches Wide"
+            subStorage = "28-33-inches Dia"
     # Parsing for Bumper Cover
     elif ("Bumper" in pdesc) & ("Cover" in pdesc):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
-        raw_bin_dim = f"BC_0_0_0"
+        raw_bin_dim = f"BC_0_0_0"       ## BC_Height_Width_Depth 
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Speciality Storage"
@@ -465,7 +396,7 @@ def _getSpecialityStorage(pdesc, depth, width, height):
 
 
 
-
+########  OLD CODE HERE
 
 # def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
 #     print(f"Initial call: shelf_depth={shelf_depth}, shelf_width={shelf_width}, shelf_height={shelf_height}, "
