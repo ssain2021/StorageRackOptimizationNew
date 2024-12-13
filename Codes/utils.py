@@ -372,11 +372,12 @@ def _getSpecialtyStorage(pdesc, depth, width, height):
             subStorage = "28-inches Dia"
         else:
             subStorage = "28-33-inches Dia"
-    # Parsing for Bumper Cover
-    elif ("Bumper" in pdesc) & ("Cover" in pdesc):
+    # Parsing for Bumper Cover    bulk rack size of 72" deep, x 96" wide x height 48
+    #elif ("Bumper" in pdesc) & ("Cover" in pdesc):
+    elif (pdesc.split("-")[-1].strip().lower() == "cover"):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
-        raw_bin_dim = f"BC_0_0_0"       ## BC_Height_Width_Depth 
+        raw_bin_dim = f"BC_48_96_72"       ## BC_Height_Width_Depth 
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Specialty Storage"
