@@ -6,7 +6,7 @@
 import os
 
 
-## Files Path ##
+## ~ Files Path ##
 ROOT_FILE_PATH = '\\'.join(os.getcwd().split('\\')[:-1])
 
 #AKINS_FOMO_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\AKINS FoMoCo_Piece_Sales_112222_YTD.xlsx")
@@ -18,25 +18,19 @@ COUNTERPAD_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\Counter_Pad_111
 
 
 
-## Variables 
+## ~ Variables ##
 
 print_df_after_import = False
 print_df_data_analyse = True
 
 drop0Dims = False
 
-TIRE_PERCENT1 = 0.5      ##  50% of tires are 33 inches, or more
 
 
 
+## ~ Parameters ##
 
-
-## Parameters
-
-# # Zoning Parameters
-# Zones=['Red Hot', 'Red', 'Orange', 'Yellow', 'Green', 'Blue']
-# thresMultiplier=0.2
-
+## * Zoning Parameters
 # TODO: Clarify for other Zones
 totalDaysOfData = 300    # Total Days in Dataset
 redHot1SaleTP = 1        # 1 Sell per 1 day
@@ -54,3 +48,8 @@ zones = {
     'Green': totalDaysOfData/green1SaleTP,
     'Blue': totalDaysOfData/blue1SaleTP
 }
+
+
+## * Storage Parameters
+tirePercent = 0.5      ##  50% of tires are 33 inches, or more
+fillFactor = 0.7       #  70% Filling, 30% Open Space for DRAWER / RACK / SHELVE

@@ -89,12 +89,12 @@ def getGreenBlueStorage(depth: int, width: int, height: int) -> str:
     return storageType, subStorage, raw_bin_dim
 
 
-def getSpecialtyStorage(pdesc, depth, width, height) -> str:
+def getSpecialtyStorage(pcate, depth, width, height) -> str:
     """
     Determines if an item requires special storage and assigns appropriate storage type.
     
     Args:
-        pdesc (str): Part description.
+        pcate (str): Part Category.
         depth (int): Depth of the item.
         width (int): Width of the item.
         height (int): Height of the item.
@@ -102,7 +102,7 @@ def getSpecialtyStorage(pdesc, depth, width, height) -> str:
     Returns:
         tuple: (isSpec, storageType, subStorage, raw_bin_dim)
     """
-    isSpec, storageType, subStorage, raw_bin_dim = _getSpecialtyStorage(pdesc, depth, width, height)
+    isSpec, storageType, subStorage, raw_bin_dim = _getSpecialtyStorage(pcate, depth, width, height)
     return isSpec, storageType, subStorage, raw_bin_dim
 
 ##################### FUNCTION INITS ##############################
@@ -351,19 +351,19 @@ def _getGreenBlueStorage(depth, width, height):
 
 
 
-def _getSpecialtyStorage(pdesc, depth, width, height):
+def _getSpecialtyStorage(pcate, depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
     raw_bin_dim = ""
 
     # Parsing for Battery
-    if pdesc.split("-")[-1].strip().lower() == "battery":
+    if pcate.lower() == "battery":
         storageType = "Battery Specialty Storage"
         subStorage = "48-inch Deep- 48-inch Wide- 3-Level Sloped Shelving"
         raw_bin_dim = f"BR_16_48_48"
     # Parsing for Tire   TIRE  has Liner Stacking. Only Width Of Rack and Width Of Tire Considered
-    elif pdesc.split("-")[-1].strip().lower() == "tire":
+    elif pcate.lower() == "tire":
         storageType = "Tire Specialty Storage"
         raw_bin_dim = f"TR_0_0_0"
         if depth > 33:
@@ -373,11 +373,11 @@ def _getSpecialtyStorage(pdesc, depth, width, height):
         else:
             subStorage = "28-33-inches Dia"
     # Parsing for Bumper Cover    bulk rack size of 72" deep, x 96" wide x height 48
-    #elif ("Bumper" in pdesc) & ("Cover" in pdesc):
-    elif (pdesc.split("-")[-1].strip().lower() == "cover"):
+    #elif ("Bumper" in pcate) & ("Cover" in pcate):
+    elif (pcate.lower() == "bumper cover"):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = ""
-        raw_bin_dim = f"BC_48_96_72"       ## BC_Height_Width_Depth 
+        raw_bin_dim = f"B_48_96_72"       ## B_Height_Width_Depth 
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Specialty Storage"
