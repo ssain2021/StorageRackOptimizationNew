@@ -397,196 +397,201 @@ def _getSpecialtyStorage(pcate, depth, width, height):
 
 
 
-########  OLD CODE HERE
-
-# def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
-#     print(f"Initial call: shelf_depth={shelf_depth}, shelf_width={shelf_width}, shelf_height={shelf_height}, "
-#           f"part_depth={part_depth}, part_width={part_width}, part_height={part_height}")
-
-#     if (part_depth * part_width * part_height) > (shelf_depth * shelf_width * shelf_height):
-#         print("Returning 0 due to invalid dimensions")
-#         return 0, None
-
-#     def calculate_parts_for_orientation(orientation):
-#         print(f"Calculating for orientation: {orientation}")
-#         if orientation == 'depth':
-#             if (part_depth > shelf_depth) or (part_width > shelf_width) or (part_height > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
-#             print(f"Base parts for depth: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
-#             print(f"Additional parts for depth: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-#         elif orientation == 'height':
-#             if (part_height > shelf_depth) or (part_width > shelf_width) or (part_depth > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
-#             print(f"Base parts for height: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
-#             print(f"Additional parts for height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-#         elif orientation == 'width':
-#             if (part_width > shelf_depth) or (part_depth > shelf_width) or (part_height > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
-#             print(f"Base parts for width: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_depth, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
-#             print(f"Additional parts for width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-#         elif orientation == 'depth_height':
-#             if (part_depth > shelf_depth) or (part_height > shelf_width) or (part_width > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
-#             print(f"Base parts for depth_height: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
-#             print(f"Additional parts for depth_height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-#         elif orientation == 'depth_width':
-#             if (part_height > shelf_depth) or (part_depth > shelf_width) or (part_width > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_height) * (shelf_width // part_depth)) * (shelf_height // part_width)
-#             print(f"Base parts for depth_width: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
-#             print(f"Additional parts for depth_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-#         elif orientation == 'height_width':
-#             if (part_width > shelf_depth) or (part_height > shelf_width) or (part_depth > shelf_height): return 0
-#             base_parts = ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
-#             print(f"Base parts for height_width: {base_parts}")
-#             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
-#             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
-#             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
-#             print(f"Additional parts for height_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
-#             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
-
-#     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
-    
-#     max_parts = 0
-#     best_orientation = None
-    
-#     for orientation in orientations:
-#         parts = calculate_parts_for_orientation(orientation)
-#         print(f"Total parts for {orientation}: {parts}")
-#         if parts > max_parts:
-#             max_parts = parts
-#             best_orientation = orientation
-    
-#     print(f"Final result: Max parts = {max_parts}, Best orientation = {best_orientation}")
-#     return max_parts, best_orientation
-
-# # Example usage
-# shelf_depth = 12
-# shelf_width = 48
-# shelf_height = 12
-# part_depth = 8
-# part_width = 8
-# part_height = 2
-
-# max_parts, best_orientation = calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
-
-# print(f"\nMaximum number of parts: {max_parts}")
-# print(f"Best orientation: {best_orientation}")
-
-
-
-
-# def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
-#     def calculate_base_parts(orientation):
-#         if orientation == 'depth':
-#             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
-#         elif orientation == 'height':
-#             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
-#         elif orientation == 'width':
-#             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
-#         elif orientation == 'depth_height':
-#             return ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
-#         elif orientation == 'depth_width':
-#             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
-#         elif orientation == 'height_width':
-#             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
-#         elif orientation == 'width_depth':
-#             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
-#         elif orientation == 'width_height':
-#             return ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
-    
-        
-#     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
-    
-#     max_parts = 0
-#     best_orientation = None
-    
-#     for orientation in orientations:
-#         base_parts = calculate_base_parts(orientation)
-        
-#         total_parts = base_parts
-        
-#         if total_parts > max_parts:
-#             max_parts = total_parts
-#             best_orientation = orientation
-    
-#     return max_parts, best_orientation
 
 
 
 
 
+#^#######  OLD CODE HERE
 
-
-
-# ## BELOW IS OLD FUNCTION -- Main Function for Apply Zoning
-# def Apply_Zoning(df_toBeZoned, Zones=['Red Hot', 'Orange', 'Yellow', 'Green', 'Blue'], thresMultiplier=0.2, soldColName='Sold', zoneColName='Zone', dataTDays=365):
-#     # Initialize Variables
-#     sold_sum = 0 # Keep sum of all Sold until now in the current zone
-#     threshold = thresMultiplier * df_toBeZoned[soldColName].sum() # Threshold of Sum of Sold of each Zone
-#     zoneIndex = 0 # Current Zone Index
-#     zoneStartIndex = 0 # Current Zone Start Index of the Data
-
-#     # Main Loop
-#     for ind in range(df_toBeZoned.shape[0]): # Loop through each Data
-#         if sold_sum > threshold: # Check if the Sum exceeds the threshold
-#             df_toBeZoned.loc[zoneStartIndex:ind, zoneColName] = Zones[zoneIndex] # Set all the Rows from Current zoneStartIndex to now the Current Zone
-#             zoneStartIndex = ind # Set the zoneStartIndex for next zone to the End of current zone
-#             zoneIndex = zoneIndex + 1 # Increment the Zone Index
-#             sold_sum = 0 # Reset the Sold Sum when the current zone ends
-#         else: 
-#             sold_sum = sold_sum + df_toBeZoned[soldColName].iloc[ind] # If not exceeding add Sold Sum to the Sold of the current row
-#     df_toBeZoned.loc[df_toBeZoned[zoneColName] == "", zoneColName] = Zones[-1] #  Set all the leftoever empty zone Rows, to the Last Zone
-
-
-# def oldDfMainMerge():
-
-#     # It will have the Columns - 'Part Number', 'Part Desc.', 'Active', 'Sold (Pcs.)', '0Dimensions', 'Length/Depth', 'Width', 'Height', 'Zone', 'Storage Type', 'Sub Storage', 'Number of Storage needed'
-#     # It will have all the rows with common part nos. from all 4 Files, having Appropriate Sold Pcs. Values, and Dimensions
-
-#     main_list = []
-
-#     gParts_PartNos = set(df_Gparts['Svc Part Number'])
-
-#     # common_part_numbers = gParts_PartNos & set(df_Akins['Part#'])
-#     # for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Akins['Sold Pcs '], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
-#     #     main_list.append([pn, pddesc, "Akins", ac, s, False, ld, w, h, "", "", "", "",""])
-
-#     common_part_numbers = gParts_PartNos & set(df_Wholesale['Part Number'])
-#     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Wholesale['Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
-#         main_list.append([pn, pddesc, "", "Wholesale", ac, s, False, ld, w, h, "", "", "", "", ""])
-
-
-#     common_part_numbers = gParts_PartNos & set(df_Service['* indicates a superseded part\nPart Number'])
-#     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Service['Qty Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
-#         main_list.append([pn, pddesc, "", "Service", ac, s, False, ld, w, h, "", "", "", "", ""])
-
-#     df_Main = pd.DataFrame(main_list)
-#     df_Main.columns = ['Part#', 'Part Desc.', 'Part Category', 'DataSource', 'Active', 'Sold', '0Dimensions', 'Depth', 'Width', 'Height', 'Zone', 'StorageType', 'SubStorage', 'Num. Storage Required', "Bin Location"]
-#     df_Main = df_Main.sort_values('Sold', ascending=False).reset_index()
-#     df_Main["Zone"] = df_Main["Zone"].astype(str)
-#     df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
-#     df_Main = df_Main[df_Main["0Dimensions"] == False].reset_index()
-#     df_Main.drop(['index', 'level_0'], axis=1, inplace=True)
-#     #df_Main.drop(['index'], axis=1, inplace=True)
-
-#     df_Main.shape[0], utils.print_df(df_Main)
+# & def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
+# &     print(f"Initial call: shelf_depth={shelf_depth}, shelf_width={shelf_width}, shelf_height={shelf_height}, "
+# &           f"part_depth={part_depth}, part_width={part_width}, part_height={part_height}")
+# & 
+# &     if (part_depth * part_width * part_height) > (shelf_depth * shelf_width * shelf_height):
+# &         print("Returning 0 due to invalid dimensions")
+# &         return 0, None
+# & 
+# &     def calculate_parts_for_orientation(orientation):
+# &         print(f"Calculating for orientation: {orientation}")
+# &         if orientation == 'depth':
+# &             if (part_depth > shelf_depth) or (part_width > shelf_width) or (part_height > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+# &             print(f"Base parts for depth: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
+# &             print(f"Additional parts for depth: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# &         elif orientation == 'height':
+# &             if (part_height > shelf_depth) or (part_width > shelf_width) or (part_depth > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+# &             print(f"Base parts for height: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
+# &             print(f"Additional parts for height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# &         elif orientation == 'width':
+# &             if (part_width > shelf_depth) or (part_depth > shelf_width) or (part_height > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+# &             print(f"Base parts for width: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_depth, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_height, part_depth, part_width, part_height)
+# &             print(f"Additional parts for width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# &         elif orientation == 'depth_height':
+# &             if (part_depth > shelf_depth) or (part_height > shelf_width) or (part_width > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
+# &             print(f"Base parts for depth_height: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
+# &             print(f"Additional parts for depth_height: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# &         elif orientation == 'depth_width':
+# &             if (part_height > shelf_depth) or (part_depth > shelf_width) or (part_width > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_height) * (shelf_width // part_depth)) * (shelf_height // part_width)
+# &             print(f"Base parts for depth_width: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_height, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_width, part_depth, part_width, part_height)
+# &             print(f"Additional parts for depth_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# &         elif orientation == 'height_width':
+# &             if (part_width > shelf_depth) or (part_height > shelf_width) or (part_depth > shelf_height): return 0
+# &             base_parts = ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
+# &             print(f"Base parts for height_width: {base_parts}")
+# &             additional_parts1, best_orient = calculate_max_parts(shelf_depth % part_width, shelf_width, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts2, best_orient = calculate_max_parts(shelf_depth, shelf_width % part_height, shelf_height, part_depth, part_width, part_height)
+# &             additional_parts3, best_orient = calculate_max_parts(shelf_depth, shelf_width, shelf_height % part_depth, part_depth, part_width, part_height)
+# &             print(f"Additional parts for height_width: {additional_parts1}, {additional_parts2}, {additional_parts3}")
+# &             return base_parts + max(additional_parts1, additional_parts2, additional_parts3)
+# & 
+# &     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
+# &     
+# &     max_parts = 0
+# &     best_orientation = None
+# &     
+# &     for orientation in orientations:
+# &         parts = calculate_parts_for_orientation(orientation)
+# &         print(f"Total parts for {orientation}: {parts}")
+# &         if parts > max_parts:
+# &             max_parts = parts
+# &             best_orientation = orientation
+# &     
+# &     print(f"Final result: Max parts = {max_parts}, Best orientation = {best_orientation}")
+# &     return max_parts, best_orientation
+# & 
+# & # Example usage
+# & shelf_depth = 12
+# & shelf_width = 48
+# & shelf_height = 12
+# & part_depth = 8
+# & part_width = 8
+# & part_height = 2
+# & 
+# & max_parts, best_orientation = calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height)
+# & 
+# & print(f"\nMaximum number of parts: {max_parts}")
+# & print(f"Best orientation: {best_orientation}")
+# & 
+# & 
+# & 
+# & 
+# & def calculate_max_parts(shelf_depth, shelf_width, shelf_height, part_depth, part_width, part_height):
+# &     def calculate_base_parts(orientation):
+# &         if orientation == 'depth':
+# &             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+# &         elif orientation == 'height':
+# &             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+# &         elif orientation == 'width':
+# &             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+# &         elif orientation == 'depth_height':
+# &             return ((shelf_depth // part_depth) * (shelf_width // part_height)) * (shelf_height // part_width)
+# &         elif orientation == 'depth_width':
+# &             return ((shelf_depth // part_depth) * (shelf_width // part_width)) * (shelf_height // part_height)
+# &         elif orientation == 'height_width':
+# &             return ((shelf_depth // part_height) * (shelf_width // part_width)) * (shelf_height // part_depth)
+# &         elif orientation == 'width_depth':
+# &             return ((shelf_depth // part_width) * (shelf_width // part_depth)) * (shelf_height // part_height)
+# &         elif orientation == 'width_height':
+# &             return ((shelf_depth // part_width) * (shelf_width // part_height)) * (shelf_height // part_depth)
+# &     
+# &         
+# &     orientations = ['depth', 'height', 'width', 'depth_height', 'depth_width', 'height_width']
+# &     
+# &     max_parts = 0
+# &     best_orientation = None
+# &     
+# &     for orientation in orientations:
+# &         base_parts = calculate_base_parts(orientation)
+# &         
+# &         total_parts = base_parts
+# &         
+# &         if total_parts > max_parts:
+# &             max_parts = total_parts
+# &             best_orientation = orientation
+# &     
+# &     return max_parts, best_orientation
+# & 
+# & 
+# & 
+# & 
+# & 
+# & 
+# & 
+# & 
+# & ## BELOW IS OLD FUNCTION -- Main Function for Apply Zoning
+# & def Apply_Zoning(df_toBeZoned, Zones=['Red Hot', 'Orange', 'Yellow', 'Green', 'Blue'], thresMultiplier=0.2, soldColName='Sold', zoneColName='Zone', dataTDays=365):
+# &     # Initialize Variables
+# &     sold_sum = 0 # Keep sum of all Sold until now in the current zone
+# &     threshold = thresMultiplier * df_toBeZoned[soldColName].sum() # Threshold of Sum of Sold of each Zone
+# &     zoneIndex = 0 # Current Zone Index
+# &     zoneStartIndex = 0 # Current Zone Start Index of the Data
+# & 
+# &     # Main Loop
+# &     for ind in range(df_toBeZoned.shape[0]): # Loop through each Data
+# &         if sold_sum > threshold: # Check if the Sum exceeds the threshold
+# &             df_toBeZoned.loc[zoneStartIndex:ind, zoneColName] = Zones[zoneIndex] # Set all the Rows from Current zoneStartIndex to now the Current Zone
+# &             zoneStartIndex = ind # Set the zoneStartIndex for next zone to the End of current zone
+# &             zoneIndex = zoneIndex + 1 # Increment the Zone Index
+# &             sold_sum = 0 # Reset the Sold Sum when the current zone ends
+# &         else: 
+# &             sold_sum = sold_sum + df_toBeZoned[soldColName].iloc[ind] # If not exceeding add Sold Sum to the Sold of the current row
+# &     df_toBeZoned.loc[df_toBeZoned[zoneColName] == "", zoneColName] = Zones[-1] #  Set all the leftoever empty zone Rows, to the Last Zone
+# & 
+# & 
+# & def oldDfMainMerge():
+# & 
+# &     # It will have the Columns - 'Part Number', 'Part Desc.', 'Active', 'Sold (Pcs.)', '0Dimensions', 'Length/Depth', 'Width', 'Height', 'Zone', 'Storage Type', 'Sub Storage', 'Number of Storage needed'
+# &     # It will have all the rows with common part nos. from all 4 Files, having Appropriate Sold Pcs. Values, and Dimensions
+# & 
+# &     main_list = []
+# & 
+# &     gParts_PartNos = set(df_Gparts['Svc Part Number'])
+# & 
+# &     # common_part_numbers = gParts_PartNos & set(df_Akins['Part#'])
+# &     # for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Akins['Sold Pcs '], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+# &     #     main_list.append([pn, pddesc, "Akins", ac, s, False, ld, w, h, "", "", "", "",""])
+# & 
+# &     common_part_numbers = gParts_PartNos & set(df_Wholesale['Part Number'])
+# &     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Wholesale['Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+# &         main_list.append([pn, pddesc, "", "Wholesale", ac, s, False, ld, w, h, "", "", "", "", ""])
+# & 
+# & 
+# &     common_part_numbers = gParts_PartNos & set(df_Service['* indicates a superseded part\nPart Number'])
+# &     for pn, pddesc, ac, s, ld, w, h in zip(common_part_numbers, df_Gparts["Svc Part Number Description"], df_Gparts['Is Active?'], df_Service['Qty Sold'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+# &         main_list.append([pn, pddesc, "", "Service", ac, s, False, ld, w, h, "", "", "", "", ""])
+# & 
+# &     df_Main = pd.DataFrame(main_list)
+# &     df_Main.columns = ['Part#', 'Part Desc.', 'Part Category', 'DataSource', 'Active', 'Sold', '0Dimensions', 'Depth', 'Width', 'Height', 'Zone', 'StorageType', 'SubStorage', 'Num. Storage Required', "Bin Location"]
+# &     df_Main = df_Main.sort_values('Sold', ascending=False).reset_index()
+# &     df_Main["Zone"] = df_Main["Zone"].astype(str)
+# &     df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
+# &     df_Main = df_Main[df_Main["0Dimensions"] == False].reset_index()
+# &     df_Main.drop(['index', 'level_0'], axis=1, inplace=True)
+# &     #df_Main.drop(['index'], axis=1, inplace=True)
+# & 
+# &     df_Main.shape[0], utils.print_df(df_Main)
