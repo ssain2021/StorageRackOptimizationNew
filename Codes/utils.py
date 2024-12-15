@@ -376,7 +376,7 @@ def _getSpecialtyStorage(pcate, depth, width, height):
     #elif ("Bumper" in pcate) & ("Cover" in pcate):
     elif (pcate.lower() == "bumper cover"):
         storageType = "Bumper Cover Specialty Storage"
-        subStorage = ""
+        subStorage = "72-inch Deep 96-inch Wide Bulk"
         raw_bin_dim = f"B_48_96_72"       ## B_Height_Width_Depth 
     # For Hanging Storage
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
