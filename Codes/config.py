@@ -6,7 +6,7 @@
 import os
 
 
-## ~ Files Path ##
+## @ Files Path ##
 ROOT_FILE_PATH = '\\'.join(os.getcwd().split('\\')[:-1])
 
 #AKINS_FOMO_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\AKINS FoMoCo_Piece_Sales_112222_YTD.xlsx")
@@ -18,7 +18,7 @@ COUNTERPAD_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\Counter_Pad_111
 
 
 
-## ~ Variables ##
+## @ Variables ##
 
 print_df_after_import = False
 print_df_data_analyse = True
@@ -28,7 +28,7 @@ drop0Dims = False
 
 
 
-## ~ Parameters ##
+## @ Parameters ##
 
 ## * Zoning Parameters
 # TODO: Clarify for other Zones
