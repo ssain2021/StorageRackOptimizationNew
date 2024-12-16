@@ -133,6 +133,7 @@ def _getRedHotStorage(depth, width, height):
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
+    # ^  Client Rack Label - [D/C/B/BFR/TR/HS] Width-Depth-Height
     # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
     raw_bin_dim = ""
 
@@ -178,8 +179,10 @@ def _getRedHotStorage(depth, width, height):
  
     # Start of Bulk Storage        
     for width, depth in [[width, depth], [depth, width]]:
+        #if (depth <= 96) & (height >= 12) & (width <= 96):         ### Removed Minimum Height criteria - 15-Dec
         if (depth <= 96) & (height >= 12) & (width <= 96):
             storageType = "Bulk Storage" # Set Storage Type accordingly
+    # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
             raw_bin_dim = "B_48_"      ### ~  ASSUMPTION: BULK RACK HEIGHT LIMIT 48 Inches
             if (depth <= 24): # If the depth is less than 24
                 subStorage = "24-inch Deep - "
@@ -219,9 +222,12 @@ def _getOrangeYellowStorage(depth, width, height):
     storageType = ""
     subStorage = ""
     raw_bin_dim = ""
+# ^  Client Rack Label - [D/C/B/BFR/TR/HS] Width-Depth-Height
+# ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
 
+        # ^ For Clip Shelving Storage 
     for width, depth in [[width, depth], [depth, width]]:
-        if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
+        if (depth <= 24) & (height <= 15) & (width <= 48): 
             storageType = "Clip Shelving" # Set Storage Type accordingly
             raw_bin_dim = "C_15_"
             if (depth <= 12):  # If the depth is less than equal to 12
@@ -242,11 +248,12 @@ def _getOrangeYellowStorage(depth, width, height):
         if raw_bin_dim != "":
             return storageType, subStorage,  raw_bin_dim
 
-    # For BULK STORAGE
+    # ^ For BULK STORAGE
     for width, depth in [[width, depth], [depth, width]]:
-        if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+    #    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+        if (depth <= 96)  & (width <= 96): # For Bulk Shelving  ## * Remove Minimum Height Checking - 15-Dec
             storageType = "Bulk Storage" # Set Storage Type accordingly
-            raw_bin_dim = "B_48_"
+            raw_bin_dim = "B_48_"           ##  Height of BULK 
             if (depth <= 24): # If the depth is less than 24
                 subStorage = "24-inch Deep - "
                 raw_bin_dim += "24_"
@@ -286,10 +293,13 @@ def _getGreenBlueStorage(depth, width, height):
     storageType = ""
     subStorage = ""
     raw_bin_dim = ""
+# ^  Client Rack Label - [D/C/B/BFR/TR/HS] Width-Depth-Height
+# ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
     
-    # For Bulk Shelving
+    # ^ For Bulk Shelving
     for width, depth in [[width, depth], [depth, width]]:
         if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+    #    if (depth <= 96)  & (width <= 96): # *  For Bulk Shelving  ##  Remove Minimum Height Checking - 15-Dec
             storageType = "Bulk Storage" # Set Storage Type accordingly
             raw_bin_dim = f"B_48_"
             if (depth <= 24): # If the depth is less than 24
@@ -322,6 +332,7 @@ def _getGreenBlueStorage(depth, width, height):
         if raw_bin_dim != "":
             return storageType, subStorage,  raw_bin_dim
     
+# ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
         # For Clip Shelving:
     for width, depth in [[width, depth], [depth, width]]:
         if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
@@ -342,6 +353,42 @@ def _getGreenBlueStorage(depth, width, height):
             elif (width <= 48):
                 subStorage += "48-inch Wide Shelf"
                 raw_bin_dim += "48"
+        if raw_bin_dim != "":
+            return storageType, subStorage,  raw_bin_dim
+
+    # ^ For Bulk Shelving - For parts not stacked in Clip Shelving--  Without  Minimum Height Checking - 15-Dec
+    for width, depth in [[width, depth], [depth, width]]:
+    #    if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+        if (depth <= 96)  & (width <= 96): # *  For Bulk Shelving  ##  Remove 
+            storageType = "Bulk Storage" # Set Storage Type accordingly
+            raw_bin_dim = f"B_48_"
+            if (depth <= 24): # If the depth is less than 24
+                subStorage = "24-inch Deep - "
+                raw_bin_dim += "24_"
+            elif (depth <= 36):
+                subStorage = "36-inch Deep - "
+                raw_bin_dim += "36_"
+            elif (depth <= 42):
+                subStorage = "42-inch Deep - "
+                raw_bin_dim += "42_"
+            elif (depth <= 48):
+                subStorage = "48-inch Deep - "
+                raw_bin_dim += "48_"
+            elif (depth <= 72):
+                subStorage = "72-inch Deep - "
+                raw_bin_dim += "72_"
+            elif (depth <= 96):
+                subStorage = "96-inch Deep - "
+                raw_bin_dim += "96_"
+            if (width <= 48):
+                subStorage += "48-inch Wide Shelf"
+                raw_bin_dim += "48"
+            elif (width <= 72):
+                subStorage += "72-inch Wide Shelf"
+                raw_bin_dim += "72"
+            elif (width <= 96):
+                subStorage += "96-inch Wide Shelf"
+                raw_bin_dim += "96"
         if raw_bin_dim != "":
             return storageType, subStorage,  raw_bin_dim
 
@@ -377,17 +424,30 @@ def _getSpecialtyStorage(pcate, depth, width, height):
     elif (pcate.lower() == "bumper cover"):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = "72-inch Deep 96-inch Wide Bulk"
-        raw_bin_dim = f"B_48_96_72"       ## B_Height_Width_Depth 
+        raw_bin_dim = f"B_48_72_96"       ## B_Height_Depth_Width 
+    elif (pcate.lower() == "hood"):
+        storageType = "Hood Assembly Specialty Storage"
+        subStorage = "72-inch Deep 96-inch Wide, 80-inch High Bulk"
+        raw_bin_dim = f"B_80_72_96"       ## B_Height_Depth_Width 
     # For Hanging Storage
+
+    elif (pcate.lower() == "wiper blade") | (pcate.lower() == "wiper arm") | (pcate.lower() == "v-belt"):
+        storageType = "Hanging Specialty Storage"
+        raw_bin_dim = f"HS_0_0_0"  
+        # # TODO: Clarify to get the SKU Count and Fix this
+        # if skuCount <= 10: 
+        #     subStorage = "6-inch Hooks"
+        # elif 10 < skuCount <= 20:
+        #     subStorage = "12-inch Hooks"
+
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Specialty Storage"
         raw_bin_dim = f"HS_0_0_0"
         # TODO: Clarify to get the SKU Count and Fix this
-        skuCount = 10
-        if skuCount <= 10: 
-            subStorage = "6-inch Hooks"
-        elif 10 < skuCount <= 20:
-            subStorage = "12-inch Hooks"
+    #     if skuCount <= 10: 
+    #         subStorage = "6-inch Hooks"
+    #     elif 10 < skuCount <= 20:
+    #         subStorage = "12-inch Hooks"
     else:
         return False, storageType, subStorage, raw_bin_dim
 
