@@ -105,6 +105,12 @@ def getSpecialtyStorage(pcate, depth, width, height) -> str:
     isSpec, storageType, subStorage, raw_bin_dim = _getSpecialtyStorage(pcate, depth, width, height)
     return isSpec, storageType, subStorage, raw_bin_dim
 
+def checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidth, binDepth):
+    """
+    """
+    canFit = _checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidth, binDepth)
+    return canFit
+
 ##################### FUNCTION INITS ##############################
 
 def _read_excel(file_path, sheet_name):
@@ -454,7 +460,11 @@ def _getSpecialtyStorage(pcate, depth, width, height):
     return True, storageType, subStorage, raw_bin_dim
 
 
-
+def _checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidth, binDepth):
+    for width, depth in [[binWidth, binDepth], [binDepth, binWidth]]:
+        if (partDepth <= width) & (partHeight <= binHeight) & (partWidth <= depth): # For Clip Shelving:
+            return True
+    return False
 
 
 
