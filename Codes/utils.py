@@ -302,65 +302,65 @@ def _getGreenBlueStorage(depth, width, height):
 # ^  Client Rack Label - [D/C/B/BFR/TR/HS] Width-Depth-Height
 # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
     
-    # ^ For Bulk Shelving
-    for width, depth in [[width, depth], [depth, width]]:
-        if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
-    #    if (depth <= 96)  & (width <= 96): # *  For Bulk Shelving  ##  Remove Minimum Height Checking - 15-Dec
-            storageType = "Bulk Storage" # Set Storage Type accordingly
-            raw_bin_dim = f"B_48_"
-            if (depth <= 24): # If the depth is less than 24
-                subStorage = "24-inch Deep - "
-                raw_bin_dim += "24_"
-            elif (depth <= 36):
-                subStorage = "36-inch Deep - "
-                raw_bin_dim += "36_"
-            elif (depth <= 42):
-                subStorage = "42-inch Deep - "
-                raw_bin_dim += "42_"
-            elif (depth <= 48):
-                subStorage = "48-inch Deep - "
-                raw_bin_dim += "48_"
-            elif (depth <= 72):
-                subStorage = "72-inch Deep - "
-                raw_bin_dim += "72_"
-            elif (depth <= 96):
-                subStorage = "96-inch Deep - "
-                raw_bin_dim += "96_"
-            if (width <= 48):
-                subStorage += "48-inch Wide Shelf"
-                raw_bin_dim += "48"
-            elif (width <= 72):
-                subStorage += "72-inch Wide Shelf"
-                raw_bin_dim += "72"
-            elif (width <= 96):
-                subStorage += "96-inch Wide Shelf"
-                raw_bin_dim += "96"
-        if raw_bin_dim != "":
-            return storageType, subStorage,  raw_bin_dim
+    # ^ For Bulk Shelving   ###   For GREEN  and BLUE Zone Parts - Only Assign BULK STorage  (No Need to Check Part Height)
+#     for width, depth in [[width, depth], [depth, width]]:
+#         if (depth <= 96) & (height >= 12) & (width <= 96): # For Bulk Shelving
+#     #    if (depth <= 96)  & (width <= 96): # *  For Bulk Shelving  ##  Remove Minimum Height Checking - 15-Dec
+#             storageType = "Bulk Storage" # Set Storage Type accordingly
+#             raw_bin_dim = f"B_48_"
+#             if (depth <= 24): # If the depth is less than 24
+#                 subStorage = "24-inch Deep - "
+#                 raw_bin_dim += "24_"
+#             elif (depth <= 36):
+#                 subStorage = "36-inch Deep - "
+#                 raw_bin_dim += "36_"
+#             elif (depth <= 42):
+#                 subStorage = "42-inch Deep - "
+#                 raw_bin_dim += "42_"
+#             elif (depth <= 48):
+#                 subStorage = "48-inch Deep - "
+#                 raw_bin_dim += "48_"
+#             elif (depth <= 72):
+#                 subStorage = "72-inch Deep - "
+#                 raw_bin_dim += "72_"
+#             elif (depth <= 96):
+#                 subStorage = "96-inch Deep - "
+#                 raw_bin_dim += "96_"
+#             if (width <= 48):
+#                 subStorage += "48-inch Wide Shelf"
+#                 raw_bin_dim += "48"
+#             elif (width <= 72):
+#                 subStorage += "72-inch Wide Shelf"
+#                 raw_bin_dim += "72"
+#             elif (width <= 96):
+#                 subStorage += "96-inch Wide Shelf"
+#                 raw_bin_dim += "96"
+#         if raw_bin_dim != "":
+#             return storageType, subStorage,  raw_bin_dim
     
-# ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
-        # For Clip Shelving:
-    for width, depth in [[width, depth], [depth, width]]:
-        if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
-            storageType = "Clip Shelving" # Set Storage Type accordingly
-            raw_bin_dim = "C_15_"
-            if (depth <= 12):  # If the depth is less than 12
-                subStorage = "12-inch Deep - "
-                raw_bin_dim += "12_"
-            elif (depth <= 18):
-                subStorage = "18-inch Deep - "
-                raw_bin_dim += "18_"
-            elif (depth <= 24):
-                subStorage = "24-inch Deep - "
-                raw_bin_dim += "24_"
-            if (width <= 36):
-                subStorage += "36-inch Wide Shelf"
-                raw_bin_dim += "36"
-            elif (width <= 48):
-                subStorage += "48-inch Wide Shelf"
-                raw_bin_dim += "48"
-        if raw_bin_dim != "":
-            return storageType, subStorage,  raw_bin_dim
+# # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
+#         # For Clip Shelving:
+#     for width, depth in [[width, depth], [depth, width]]:
+#         if (depth <= 24) & (height <= 15) & (width <= 48): # For Clip Shelving:
+#             storageType = "Clip Shelving" # Set Storage Type accordingly
+#             raw_bin_dim = "C_15_"
+#             if (depth <= 12):  # If the depth is less than 12
+#                 subStorage = "12-inch Deep - "
+#                 raw_bin_dim += "12_"
+#             elif (depth <= 18):
+#                 subStorage = "18-inch Deep - "
+#                 raw_bin_dim += "18_"
+#             elif (depth <= 24):
+#                 subStorage = "24-inch Deep - "
+#                 raw_bin_dim += "24_"
+#             if (width <= 36):
+#                 subStorage += "36-inch Wide Shelf"
+#                 raw_bin_dim += "36"
+#             elif (width <= 48):
+#                 subStorage += "48-inch Wide Shelf"
+#                 raw_bin_dim += "48"
+#         if raw_bin_dim != "":
+#             return storageType, subStorage,  raw_bin_dim
 
     # ^ For Bulk Shelving - For parts not stacked in Clip Shelving--  Without  Minimum Height Checking - 15-Dec
     for width, depth in [[width, depth], [depth, width]]:
