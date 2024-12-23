@@ -429,12 +429,12 @@ def _getSpecialtyStorage(pcate, depth, width, height):
     #elif ("Bumper" in pcate) & ("Cover" in pcate):
     elif (pcate.lower() == "bumper cover"):
         storageType = "Bumper Cover Specialty Storage"
-        subStorage = "72-inch Deep 96-inch Wide Bulk"
-        raw_bin_dim = f"B_48_72_96"       ## B_Height_Depth_Width 
+        subStorage = "72-inch Deep- 96-inch Wide Bulk"
+        raw_bin_dim = f"BC_48_72_96"       ## B_Height_Depth_Width 
     elif (pcate.lower() == "hood"):
         storageType = "Hood Assembly Specialty Storage"
-        subStorage = "72-inch Deep 96-inch Wide, 80-inch High Bulk"
-        raw_bin_dim = f"B_80_72_96"       ## B_Height_Depth_Width 
+        subStorage = "72-inch Deep- 96-inch Wide, 80-inch High Bulk"
+        raw_bin_dim = f"BH_80_72_96"       ## B_Height_Depth_Width 
     # For Hanging Storage
 
     elif (pcate.lower() == "wiper blade") | (pcate.lower() == "wiper arm") | (pcate.lower() == "v-belt"):
