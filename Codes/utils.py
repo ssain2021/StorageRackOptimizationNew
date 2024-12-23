@@ -426,7 +426,6 @@ def _getSpecialtyStorage(pcate, depth, width, height):
         else:
             subStorage = "28-33-inches Dia"
     # Parsing for Bumper Cover    bulk rack size of 72" deep, x 96" wide x height 48
-    #elif ("Bumper" in pcate) & ("Cover" in pcate):
     elif (pcate.lower() == "bumper cover"):
         storageType = "Bumper Cover Specialty Storage"
         subStorage = "72-inch Deep- 96-inch Wide Bulk"
@@ -436,24 +435,13 @@ def _getSpecialtyStorage(pcate, depth, width, height):
         subStorage = "72-inch Deep- 96-inch Wide, 80-inch High Bulk"
         raw_bin_dim = f"BH_80_72_96"       ## B_Height_Depth_Width 
     # For Hanging Storage
-
     elif (pcate.lower() == "wiper blade") | (pcate.lower() == "wiper arm") | (pcate.lower() == "v-belt"):
         storageType = "Hanging Specialty Storage"
         raw_bin_dim = f"HS_0_0_0"  
-        # # TODO: Clarify to get the SKU Count and Fix this
-        # if skuCount <= 10: 
-        #     subStorage = "6-inch Hooks"
-        # elif 10 < skuCount <= 20:
-        #     subStorage = "12-inch Hooks"
 
     elif ((depth >= 24) & (width <= 4) & (height <= 4)) | ((depth <= 4) & (width <= 4) & (height >= 24)) | ((depth <= 4) & (height <= 4) & (width >= 24)) :
         storageType = "Hanging Specialty Storage"
         raw_bin_dim = f"HS_0_0_0"
-        # TODO: Clarify to get the SKU Count and Fix this
-    #     if skuCount <= 10: 
-    #         subStorage = "6-inch Hooks"
-    #     elif 10 < skuCount <= 20:
-    #         subStorage = "12-inch Hooks"
     else:
         return False, storageType, subStorage, raw_bin_dim
 
