@@ -135,7 +135,7 @@ def _print_df(df, rows, style):
         print(tabulate(df, headers = 'keys', tablefmt = style))
 
 
-def _getRedHotStorage(depth, width, height):
+def _getRedHotStorage(depth, width, height):         ## @ For Both Zones - Red Hot, and Red
     # Initialize the empty Variables
     storageType = ""
     subStorage = ""
@@ -159,7 +159,7 @@ def _getRedHotStorage(depth, width, height):
                 raw_bin_dim += "48"
         if raw_bin_dim != "":
             return storageType, subStorage,  raw_bin_dim
-        
+       
     for width, depth in [[width, depth], [depth, width]]:
         # Start of Clip Shelving
         if (depth <= 24) & (height <= 15) & (width <= 48):
@@ -186,7 +186,7 @@ def _getRedHotStorage(depth, width, height):
     # Start of Bulk Storage        
     for width, depth in [[width, depth], [depth, width]]:
         #if (depth <= 96) & (height >= 12) & (width <= 96):         ### Removed Minimum Height criteria - 15-Dec
-        if (depth <= 96) & (height >= 12) & (width <= 96):
+        if (depth <= 96) & (width <= 96):
             storageType = "Bulk Storage" # Set Storage Type accordingly
     # ^ Raw_Bin_Dim has this format :-  Height_Depth_Width
             raw_bin_dim = "B_48_"      ### ~  ASSUMPTION: BULK RACK HEIGHT LIMIT 48 Inches
