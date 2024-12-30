@@ -653,3 +653,19 @@ def _checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidt
 # &     #df_Main.drop(['index'], axis=1, inplace=True)
 # & 
 # &     df_Main.shape[0], utils.print_df(df_Main)
+
+
+    # ## @ CHECK if BIN NOT Available , or, Already  BIN is FULL ,  Then PICK Next Available BIN
+    # if (filledAmtOfBin >= totalBinOfType - 0.01) | (flagAvail == 'No'):
+    #     for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+    #         if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+    #             binData = df_binData[df_binData['Bin Label'] == binType1]
+    #             fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+    #             totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+    #             if (fillAmt < (totalBin - 0.01)):
+    #                 break
+
+    # totalBinOfType = binData['Total Bins'].values[0]
+    # filledAmtOfBin = binData['Filled Amount'].values[0]
+    # binOrder = binData['Bin Order'].values[0]
+    # binType = binData['Bin Label'].values[0]
