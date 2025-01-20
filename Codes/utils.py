@@ -10,7 +10,7 @@ from tabulate import tabulate
 
 
 
-def read_excel(file_path: str, sheet_name:int=0) -> pd.DataFrame:
+def read_excel(file_path: str, sheet_name:int=0, header:int=0) -> pd.DataFrame:
     """
     Reads an Excel file and returns a Pandas DataFrame.
     
@@ -26,7 +26,7 @@ def read_excel(file_path: str, sheet_name:int=0) -> pd.DataFrame:
         pd.errors.EmptyDataError: If the file is empty.
         pd.errors.ParserError: If there's an error parsing the file.
     """
-    df = _read_excel(file_path, sheet_name)
+    df = _read_excel(file_path, sheet_name, header)
     return df
 
 
@@ -113,9 +113,9 @@ def checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidth
 
 ##################### FUNCTION INITS ##############################
 
-def _read_excel(file_path, sheet_name):
+def _read_excel(file_path, sheet_name, header):
     try:
-        df = pd.read_excel(file_path, sheet_name)
+        df = pd.read_excel(file_path, sheet_name, header=header)
         return df
     # except FileNotFoundError:
     #     print(file_path.split('/')[0] + ": File not found")
