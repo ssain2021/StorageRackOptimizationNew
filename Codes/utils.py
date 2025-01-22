@@ -655,17 +655,83 @@ def _checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidt
 # &     df_Main.shape[0], utils.print_df(df_Main)
 
 
-    # ## @ CHECK if BIN NOT Available , or, Already  BIN is FULL ,  Then PICK Next Available BIN
-    # if (filledAmtOfBin >= totalBinOfType - 0.01) | (flagAvail == 'No'):
-    #     for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
-    #         if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
-    #             binData = df_binData[df_binData['Bin Label'] == binType1]
-    #             fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
-    #             totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
-    #             if (fillAmt < (totalBin - 0.01)):
-    #                 break
-
-    # totalBinOfType = binData['Total Bins'].values[0]
-    # filledAmtOfBin = binData['Filled Amount'].values[0]
-    # binOrder = binData['Bin Order'].values[0]
-    # binType = binData['Bin Label'].values[0]
+# &    # ## @ CHECK if BIN NOT Available , or, Already  BIN is FULL ,  Then PICK Next Available BIN
+# &    # if (filledAmtOfBin >= totalBinOfType - 0.01) | (flagAvail == 'No'):
+# &    #     for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+# &    #         if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+# &    #             binData = df_binData[df_binData['Bin Label'] == binType1]
+# &    #             fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+# &    #             totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+# &    #             if (fillAmt < (totalBin - 0.01)):
+# &    #                 break
+# &
+# &    # totalBinOfType = binData['Total Bins'].values[0]
+# &    # filledAmtOfBin = binData['Filled Amount'].values[0]
+# &    # binOrder = binData['Bin Order'].values[0]
+# &    # binType = binData['Bin Label'].values[0]
+# &
+# &
+# &
+# &
+# &
+# &
+# &
+# &
+# &
+# &
+# &# ## OLD CODE - VERY SLOW  ------  @ Make a Big Final Dataframe
+# &
+# &# # * It will have the Columns - 'Part Number', 'Part Desc.', 'Active', 'Sold (Pcs.)', '0Dimensions', 'Length/Depth', 'Width', 'Height', 'Zone', 'Storage Type', 'Sub Storage', 'Number of Storage needed'
+# &# # It will have all the rows with common part nos. from 3 Files, having Appropriate Sold Pcs. Values, and Dimensions
+# &
+# &# main_list = [] # Initialize the New List, which will hold all rows before turning into DF
+# &# gParts_PartNos = set(df_Gparts['Svc Part Number']) # Get a Set of all Part Nos. of GParts
+# &
+# &# # Wholesale
+# &# common_part_numbers = gParts_PartNos & set(df_Wholesale['Part Number'])
+# &# df_PreMerge = df_Gparts.loc[df_Gparts['Svc Part Number'].isin(common_part_numbers), ['Svc Part Number', 'Svc Part Number Description', 'Is Active?', 'Prod Att - Length', 'Prod Att- Width', 'Prod Att - Height']]
+# &# for pn, pddesc, ac, dp, wd, ht in zip(df_PreMerge['Svc Part Number'], df_PreMerge['Svc Part Number Description'], df_PreMerge['Is Active?'], df_PreMerge['Prod Att - Length'], df_PreMerge['Prod Att- Width'], df_PreMerge['Prod Att - Height']):
+# &#     main_list.append([pn, pddesc, "", "Wholesale", ac, df_Wholesale[df_Wholesale['Part Number'] == pn]['Sold'].values[0], 0, 0, 0, 0, False, dp, wd, ht, "", "", "", "", 0, "", "", "", ""])
+# &
+# &# # Service
+# &# common_part_numbers = gParts_PartNos & set(df_Service['* indicates a superseded part\nPart Number'])
+# &# df_PreMerge = df_Gparts.loc[df_Gparts['Svc Part Number'].isin(common_part_numbers), ['Svc Part Number', 'Svc Part Number Description', 'Is Active?', 'Prod Att - Length', 'Prod Att- Width', 'Prod Att - Height']]
+# &# for pn, pddesc, ac, dp, wd, ht in zip(df_PreMerge['Svc Part Number'], df_PreMerge['Svc Part Number Description'], df_PreMerge['Is Active?'], df_PreMerge['Prod Att - Length'], df_PreMerge['Prod Att- Width'], df_PreMerge['Prod Att - Height']):
+# &#     main_list.append([pn, pddesc, "", "Service", ac, 0, df_Service[df_Service['* indicates a superseded part\nPart Number'] == pn]['Qty Sold'].values[0], 0, 0, 0, False, dp, wd, ht, "", "", "", "", 0, "", "", "", ""])
+# &
+# &# # Counterpad
+# &# common_part_numbers = gParts_PartNos & set(df_CounterPad[(-1 * df_CounterPad['Part#'].isin([row[0] for row in main_list]) + 1).astype(bool)]['Part#'])
+# &# df_PreMerge = df_Gparts.loc[df_Gparts['Svc Part Number'].isin(common_part_numbers), ['Svc Part Number', 'Svc Part Number Description', 'Is Active?', 'Prod Att - Length', 'Prod Att- Width', 'Prod Att - Height']]
+# &# for pn, pddesc, ac, dp, wd, ht in zip(df_PreMerge['Svc Part Number'], df_PreMerge['Svc Part Number Description'], df_PreMerge['Is Active?'], df_PreMerge['Prod Att - Length'], df_PreMerge['Prod Att- Width'], df_PreMerge['Prod Att - Height']):
+# &#     main_list.append([pn, pddesc, "", "Counterpad", ac, 0, 0, 0, df_CounterPad[df_CounterPad['Part#'] == pn]['OH'].values[0], 0, False, dp, wd, ht, "", "", "", "", 0, "", "", "", ""])
+# &
+# &
+# &# # Create the Main Dataframe
+# &# df_Main = pd.DataFrame(main_list)
+# &# df_Main.columns = ['Part#', 'Part Desc.', 'Part Category', 'DataSource', 'Active', 'Wholesale Sold', 'Service Sold', "Total Sold", 'OH Inventory', 'SKU Count', '0Dimensions', 'Depth', 'Width', 'Height', 'Zone', 'StorageType', 'SubStorage', 'Bin Type', 'Num. Bin Required', 'Actual Bin Type', 'Overflow Bins', 'Overflow Comment', 'Bin Location']
+# &
+# &# # @ Process & Clean the DF
+# &# # Merge the Parts present in both Service and Wholesale (Duplicates)
+# &# gbParts = df_Main.groupby('Part#').count()[df_Main.groupby('Part#').count()['Part Desc.'] == 2].index.to_list()
+# &# for pn in gbParts:
+# &#     df_Main.loc[(df_Main['Part#'] == pn) & (df_Main['DataSource'] == "Wholesale"), "Service Sold"] = df_Main.loc[(df_Main['Part#'] == pn) & (df_Main['DataSource'] == "Service"), "Service Sold"].values[0]
+# &#     df_Main = df_Main[(df_Main['Part#'] != pn) | (df_Main['DataSource'] == "Wholesale")]
+# &# # Set 0Dimensions
+# &# df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
+# &# # Drop 0Dimensions Rows if drop0Dims
+# &# if drop0Dims: df_Main = df_Main[df_Main["0Dimensions"] == False]
+# &# # Set Total_Sold
+# &# df_Main["Total Sold"] = df_Main["Wholesale Sold"].astype(int) + df_Main["Service Sold"].astype(int)
+# &# # Sort by 'Total Sold'
+# &# df_Main = df_Main.sort_values('Total Sold', ascending=False)
+# &# # ^ Add Random Values for OH Inventory temporarily
+# &# oh_dict = df_CounterPad.set_index('Part#')['OH'].to_dict()
+# &# df_Main['OH Inventory'] = df_Main['Part#'].map(oh_dict) # Update df_Main's 'OH Inventory' column using the dictionary
+# &# df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(df_Main['OH Inventory'])
+# &# # ^ Add Random Values for SKU Count temporarily
+# &# df_Main["SKU Count"] = np.random.choice(np.arange(20), size=len(df_Main), replace=True)
+# &
+# &# # Reset Index
+# &# df_Main = df_Main.reset_index(drop=True)
+# &
+# &# # ~5 min 28 Secs
