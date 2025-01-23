@@ -735,3 +735,27 @@ def _checkIfPartCanFitInBin(partHeight, partWidth, partDepth, binHeight, binWidt
 # &# df_Main = df_Main.reset_index(drop=True)
 # &
 # &# # ~5 min 28 Secs
+
+
+
+
+#& df_Main = df_Gparts.loc[:, ['Svc Part Number', 'Svc Part Number Description', 'Is Active?', 'Prod Att - Length', 'Prod Att- Width', 'Prod Att - Height']]
+#& # for pn, pdesc, act, ln, wd, hg in zip(df_Gparts['Svc Part Number'], df_Gparts['Svc Part Number Description'], df_Gparts['Is Active?'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
+#& #     df_Main.insert
+#& df_Main.columns = ['Part#', 'Part Desc.', 'Active', 'Depth', 'Width', 'Height']
+#& df_Main.insert(2, 'Part Category', None)
+#& df_Main.insert(4, 'Wholesale Sold', 0)
+#& df_Main.insert(5, 'Service Sold', 0)
+#& df_Main.insert(6, 'Total Sold', 0)
+#& df_Main.insert(7, 'OH Inventory', 0)
+#& df_Main.insert(8, 'SKU Count', 0)
+#& df_Main.insert(9, '0Dimensions', False)
+#& df_Main.insert(13, 'Zone', None)
+#& df_Main.insert(14, 'StorageType', None)
+#& df_Main.insert(15, 'SubStorage', None)
+#& df_Main.insert(16, 'Bin Type', None)
+#& df_Main.insert(17, 'Num. Bin Required', None)
+#& df_Main.insert(18, 'Actual Bin Allocation', None)
+#& df_Main.insert(19, 'Overflow Bins', None)
+#& df_Main.insert(20, 'Overflow Comment', None)
+#& df_Main.insert(21, 'Bin Location', None)

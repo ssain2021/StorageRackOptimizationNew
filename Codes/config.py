@@ -7,7 +7,7 @@ import os
 
 
 ## @ Files Path ##
-ROOT_FILE_PATH = '\\'.join(os.getcwd().split('\\'))
+ROOT_FILE_PATH = '\\'.join(os.getcwd().split('\\')[:-1])
 
 AKINS_FOMO_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\AKINS FoMoCo_Piece_Sales_112222_YTD.xlsx")
 GPARTS_FILE_PATH = os.path.join(ROOT_FILE_PATH, r"Data&Files\GPARTS Part Measures.xlsx")
@@ -38,7 +38,7 @@ red1SaleTP =  7          # 1 sell per 7 days (1 week)
 orange1SaleTP = 14       # 1 sell per 14 days  (2 weeks) 
 yellow1SaleTP = 21       # 1 sell per 21 days  (3 weeks)
 green1SaleTP = 30        # 1 sell per 30 days  (1 month)
-blue1SaleTP = 300     # 1 sell per 300 Days (~Rest of Data)
+blue1SaleTP = float("inf")     # 1 sell per 300 Days (~Rest of Data)
 
 zones = {
     'Red Hot': totalDaysOfData/redHot1SaleTP,
