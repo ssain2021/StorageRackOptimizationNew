@@ -1,28 +1,3 @@
-
-# Normal Comment
-# ! Very Important Errors or things which must be fixed or be in attention immediately
-# TODO: Things remaining to do
-# ? Questions
-# * Some Messages or Notes
-# ^ Important Notes, Messages or things which may need attention in future
-# & Important Commented out Code
-# @ Section Starter
-# ~ Run Time, PsuedoCode, Important Logic, Other Things
-
-# TODO: Make some Unit Tests, for new Actual Bin Allocation Logic
-# TODO: Organize & Fully comment the new Actual Bin Allocation Logic. Round in necessary places, and finalize final allocation messages
-# TODO: Add TQDR Bars
-# LK4Z3504J
-
-
-
-#^###############################  Storage_Optimization.ipynb  ####################################
-# ^ Author: Sukhendu Sain
-# ^ Description: Main file of codebase. Houses main code for Storage Bin Allocation and Optimization
-# ^ Data: 23-Nov-2024
-#^################################################################################
-
-
 # Import Necessary Libraries, Utils, and Config Files
 from config import *
 import pandas as pd
@@ -58,10 +33,6 @@ df_Wholesale = utils.read_excel(WHOLESALE_FILE_PATH)
 df_Wholesale['Description'] = df_Wholesale['Description'].astype(str)
 df_Wholesale = df_Wholesale.drop(columns=[col for col in df_Wholesale.columns if 'Unnamed' in col], inplace=False)
 df_Wholesale = df_Wholesale[(df_Wholesale['Vendor'] == 'FOR')].reset_index()
-df_Wholesale.loc[df_Wholesale['Description'].apply(lambda x: len(x.split("      ")) > 1), 'Avg. Cost'] = df_Wholesale['Description'].apply(lambda x: [i for i in x.strip().split("      ")][-1])
-df_Wholesale.loc[df_Wholesale['Description'].apply(lambda x: len(x.split("      ")) > 1), 'Description'] = df_Wholesale['Description'].apply(lambda x: "     ".join([i for i in x.strip().split("      ")][:-1]))
-
-if print_df_after_import: utils.print_df(df_Wholesale) # Print the Dataframe
 # ~7 secs
 
 
@@ -71,15 +42,8 @@ df_Service = utils.read_excel(SERVICE_FILE_PATH)
 
 # Clean the Service Dataframe
 df_Service['Description'] = df_Service['Description'].astype(str)
-df_Service = df_Service.drop(columns=[col for col in df_Service.columns if 'Unnamed' in col], inplace=False)
-df_Service = df_Service[(df_Service['Vendor'] == 'FOR')].reset_index()
-df_Service.loc[df_Service['Description'].apply(lambda x: len(x.split("      ")) > 1), 'Avg. Cost'] = df_Service['Description'].apply(lambda x: [i for i in x.strip().split("      ")][-1])
-df_Service.loc[df_Service['Description'].apply(lambda x: len(x.split("      ")) > 1), 'Description'] = df_Service['Description'].apply(lambda x: "     ".join([i for i in x.strip().split("      ")][:-1]))
-df_Service.loc[df_Service['Qty Sold'].apply(lambda x: len(str(x).split("      ")) > 1), 'Dollars Sold'] = df_Service['Qty Sold'].apply(lambda x: [i for i in str(x).strip().split("      ")][-1])
-df_Service.loc[df_Service['Qty Sold'].apply(lambda x: len(str(x).split("      ")) > 1), 'Qty Sold'] = df_Service['Qty Sold'].apply(lambda x: "     ".join([i for i in str(x).strip().split("      ")][:-1]))
-
-if print_df_after_import: utils.print_df(df_Service, 100) # Print the Dataframe
-# ~4 secs                                                                                                              
+#df_Service = df_Service.drop(columns=[col for col in df_Service.columns if 'Unnamed' in col], inplace=False)
+df_Service = df_Service[(df_Service['Vendor'] == 'FOR')].reset_index()                                                                                                              
 
 
 
