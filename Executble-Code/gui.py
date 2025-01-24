@@ -170,7 +170,7 @@ class MainGUI:
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Apply Zone and Storage", command=applyZoningStorageFunc(config))
+        self.open_button = tk.Button(self.button_frame, text="Apply Zone and Storage", command=self.aSZ)
         self.open_button.pack(side=tk.LEFT, padx=10)
 
         self.log_label = tk.Label(self.root, text="Log:")
@@ -186,6 +186,9 @@ class MainGUI:
         self.log_text.insert(tk.END, message + '\n')
         self.log_text.see(tk.END)
         self.root.after(100)  # Scroll to bottom after adding new log
+
+    def aSZ(self):
+        applyZoningStorageFunc(config)
 
 
     def run(self):

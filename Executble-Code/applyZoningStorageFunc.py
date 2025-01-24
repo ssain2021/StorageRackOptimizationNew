@@ -27,13 +27,13 @@ tirePercent = 0.5
 vendor = 'FOR'
 
 def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1VendorCol, sold2VendorCol, invenVendorCol, filterVendor):
-    df_dimenFile = utils.read_excel(dimenFile)      
+    df_dimenFile = utilsExe.read_excel(dimenFile)      
     if filterVendor: df_dimenFile = df_dimenFile[(df_dimenFile[dimenVendorCol] == filterVendor)].reset_index()
-    df_soldFile1 = utils.read_excel(soldFile1)
+    df_soldFile1 = utilsExe.read_excel(soldFile1)
     if filterVendor: df_soldFile1 = df_soldFile1[(df_soldFile1[sold1VendorCol] == filterVendor)].reset_index()
-    df_soldFile2 = utils.read_excel(soldFile2)
+    df_soldFile2 = utilsExe.read_excel(soldFile2)
     if filterVendor: df_soldFile2 = df_soldFile2[(df_soldFile2[sold2VendorCol] == filterVendor)].reset_index()
-    df_Inven = utils.read_excel(invenFile)
+    df_Inven = utilsExe.read_excel(invenFile)
     if filterVendor: df_Inven = df_Inven[(df_Inven[invenVendorCol] == filterVendor)].reset_index()
     return df_dimenFile, df_soldFile1, df_soldFile2, df_Inven
 
@@ -64,10 +64,10 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
 
 
     # # * Insert the Rows from other Files
-    oh_dict = df_soldFile2.set_index(sold1Cols['Part# Column'])[sold1Cols['Sold Column']].to_dict()
+    oh_dict = df_soldFile1.set_index(sold1Cols['Part# Column'])[sold1Cols['Sold Column']].to_dict()
     df_Main['Sold 1'] = df_Main['Part#'].map(oh_dict)
 
-    oh_dict = df_soldFile1.set_index(sold2Cols['Part# Column'])[sold2Cols['Sold Column']].to_dict()
+    oh_dict = df_soldFile2.set_index(sold2Cols['Part# Column'])[sold2Cols['Sold Column']].to_dict()
     df_Main['Sold 2'] = df_Main['Part#'].map(oh_dict)
 
     oh_dict = df_Inven.set_index(invenCols['Part# Column'])[invenCols['Inventory Column']].to_dict()
@@ -182,15 +182,15 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
     if zone == "":
         return storageType, subStorage, "", 0 # Return the Values 
 
-    isSpec, storageType, subStorage, raw_bin_dim = utils.getSpecialtyStorage(pcate, depth, width, height)
+    isSpec, storageType, subStorage, raw_bin_dim = utilsExe.getSpecialtyStorage(pcate, depth, width, height)
 
     if not isSpec: 
         if (zone == "Red Hot") | (zone == "Red"):
-            storageType, subStorage, raw_bin_dim = utils.getRedHotStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getRedHotStorage(depth, width, height)
         elif (zone == "Orange") | (zone == "Yellow"):
-            storageType, subStorage, raw_bin_dim = utils.getOrangeYellowStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getOrangeYellowStorage(depth, width, height)
         elif (zone == "Green") | (zone == "Blue"):   
-            storageType, subStorage, raw_bin_dim = utils.getGreenBlueStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getGreenBlueStorage(depth, width, height)
  
     numOfBins = getNumOfBin(depth, width, height, raw_bin_dim, ohInven, fillFactor)
     binDim = ""
@@ -245,7 +245,7 @@ def applyStorage(df_Main):
 def applyZoningStorageFunc(config):
     df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
     df_Main = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
-    part_categorization(df_Main, 'Part Category')
+    #part_categorization(df_Main, 'Part Category')
     Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
     applyStorage(df_Main)
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
