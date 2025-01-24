@@ -188,7 +188,10 @@ class MainGUI:
         self.root.after(100)  # Scroll to bottom after adding new log
 
     def aSZ(self):
-        applyZoningStorageFunc(config)
+        try:
+            applyZoningStorageFunc(config)
+        except Exception as e:
+            self.log_text.insert(tk.END, e)
 
 
     def run(self):

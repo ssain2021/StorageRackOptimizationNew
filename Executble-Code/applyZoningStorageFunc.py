@@ -94,7 +94,7 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
     df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(0).astype(float)
     # Set and Sort by Total_Sold
     df_Main["Total Sold"] = df_Main["Sold 1"].astype(float) + df_Main["Sold 2"].astype(float)
-    df_Main = df_Main.sort_values('Total Sold', ascending=False)
+    df_Main = df_Main.sort_values('Total Sold', ascending=False).reset_index(drop=True)
     # ^ Add Random Values for SKU Count temporarily
     df_Main["SKU Count"] = np.random.choice(np.arange(20), size=len(df_Main), replace=True)
     return df_Main
@@ -204,8 +204,8 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
 
 
 def applyStorage(df_Main):
-    for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
-    #for i in range(df_Main.shape[0]):
+    #for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
+    for i in range(df_Main.shape[0]):
         depth = df_Main.loc[i, "Depth"]
         height = df_Main.loc[i, "Height"]
         width = df_Main.loc[i, "Width"]
@@ -224,7 +224,7 @@ def applyStorage(df_Main):
         df_Main.loc[i, "StorageType"], df_Main.loc[i, "SubStorage"], df_Main.loc[i, "Bin Type"], df_Main.loc[i, "Num. Bin Required"] = getStorage(zone, pcate, depth, width, height, ohInven, fillFactor)
 
 
-    for hangingPN in tqdm(df_Main.loc[df_Main['StorageType'] == 'Hanging Specialty Storage', "Part#"], "Completion"): # Get Hanging Parts
+    for hangingPN in df_Main.loc[df_Main['StorageType'] == 'Hanging Specialty Storage', "Part#"]: # Get Hanging Parts
         df_Main.loc[(df_Main['Part#'] == hangingPN), "SubStorage"], df_Main.loc[(df_Main['Part#'] == hangingPN), "Bin Type"], hookDiv = ("6-inch Hook", "HS06", 10) if df_Main.loc[(df_Main['Part#'] == hangingPN), "SKU Count"].values[0] <= 10 else ("12-inch Hook", "HS12", 20)
         df_Main.loc[(df_Main['Part#'] == hangingPN), "Num. Bin Required"] = int(df_Main.loc[(df_Main['Part#'] == hangingPN), "OH Inventory"].values[0])  # * Set No. of Hooks = Inventory Count
     df_Main.loc[df_Main['StorageType'] != 'Hanging Specialty Storage', "SKU Count"] = 0
@@ -244,7 +244,9 @@ def applyStorage(df_Main):
 
 def applyZoningStorageFunc(config):
     df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
+    print(config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
     df_Main = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
+    df_Main.to_excel('Final_Dataset11.xlsx', index=False) 
     #part_categorization(df_Main, 'Part Category')
     Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
     applyStorage(df_Main)

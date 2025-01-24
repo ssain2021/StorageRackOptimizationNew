@@ -1,37 +1,40 @@
 
-from config import *
+from configExe import *
 from tqdm import tqdm
-import pandas as pd
+from pandas import to_numeric, concat, DataFrame
 #import numpy as np
 from numpy import random
-import math
+from math import floor
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
-from tqdm import tqdm
-import utils
+#from tqdm import tqdm
+import utilsExe
 
 # # Data Import and Clean
 
 
 ## @ Read FILE:: (GPARTS Part Measures.xlsx) into Dataframe
-df_Gparts = utils.read_excel(GPARTS_FILE_PATH)
+df_Gparts = utilsExe.read_excel(GPARTS_FILE_PATH)
 
 ## @ Read FILE:: (Wholesale JAN_Oct_Parts_Ranking_Counter_Invoices_All_Brands.xlsx) into Dataframe
-df_Wholesale = utils.read_excel(WHOLESALE_FILE_PATH)
+df_Wholesale = utilsExe.read_excel(WHOLESALE_FILE_PATH)
 df_Wholesale['Description'] = df_Wholesale['Description'].astype(str)
 df_Wholesale = df_Wholesale[(df_Wholesale['Vendor'] == 'FOR')].reset_index()
 
 ## @ Read FILE:: (Service JAN_Oct_Parts_Ranking_ROs_All_Brands.xlsx) into Dataframe
-df_Service = utils.read_excel(SERVICE_FILE_PATH)
+df_Service = utilsExe.read_excel(SERVICE_FILE_PATH)
 df_Service = df_Service[(df_Service['Vendor'] == 'FOR')].reset_index()
 
 
 ## @ Read FILE:: (Counter Pad) into Dataframe
-df_CounterPad1 = utils.read_excel(COUNTERPAD_FILE_PATH, 0, None)
-df_CounterPad2 = utils.read_excel(COUNTERPAD_FILE_PATH, 1, None)
+df_CounterPad1 = utilsExe.read_excel(COUNTERPAD_FILE_PATH, 0)
+df_CounterPad2 = utilsExe.read_excel(COUNTERPAD_FILE_PATH, 1, None)
+df_CounterPad = concat([df_CounterPad1, df_CounterPad2])
+print(df_CounterPad.columns)
+df_CounterPad = df_CounterPad.rename(columns={'Part #': 'Part#'})
 df_CounterPad = df_CounterPad[(df_CounterPad['Vendor'] == 'FOR')].reset_index()
 
-#if print_df_after_import: utils.print_df(df_CounterPad, 100) # Print the Dataframe
+#if print_df_after_import: utilsExe.print_df(df_CounterPad, 100) # Print the Dataframe
 # ~6 secs
 
 
@@ -41,7 +44,7 @@ df_CounterPad = df_CounterPad[(df_CounterPad['Vendor'] == 'FOR')].reset_index()
 # @ Make a Big Final Dataframe
 
 # Make the Dataframe
-df_Main = pd.DataFrame({
+df_Main = DataFrame({
     'Part#': df_Gparts['Svc Part Number'],
     'Part Desc.': df_Gparts['Svc Part Number Description'],
     'Part Category': "",
@@ -71,7 +74,7 @@ df_Main = pd.DataFrame({
 oh_dict = df_Wholesale.set_index('Part Number')['Sold'].to_dict()
 df_Main['Wholesale Sold'] = df_Main['Part#'].map(oh_dict)
 
-oh_dict = df_Service.set_index('* indicates a superseded part\nPart Number')['Qty Sold'].to_dict()
+oh_dict = df_Service.set_index('Part Number')['Qty Sold'].to_dict()
 df_Main['Service Sold'] = df_Main['Part#'].map(oh_dict)
 
 oh_dict = df_CounterPad.set_index('Part#')['OH'].to_dict()
@@ -88,9 +91,9 @@ df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width
 # Drop 0Dimensions Rows if drop0Dims
 if drop0Dims: df_Main = df_Main[df_Main["0Dimensions"] == False]
 # Remove Alphanumeric Strings
-df_Main['OH Inventory'] = pd.to_numeric(df_Main['OH Inventory'], errors='coerce')
-df_Main['Wholesale Sold'] = pd.to_numeric(df_Main['Wholesale Sold'], errors='coerce')
-df_Main['Service Sold'] = pd.to_numeric(df_Main['Service Sold'], errors='coerce')
+df_Main['OH Inventory'] = to_numeric(df_Main['OH Inventory'], errors='coerce')
+df_Main['Wholesale Sold'] = to_numeric(df_Main['Wholesale Sold'], errors='coerce')
+df_Main['Service Sold'] = to_numeric(df_Main['Service Sold'], errors='coerce')
 # Fill 'nan' with 0 and convert to float
 df_Main['Wholesale Sold'] = df_Main['Wholesale Sold'].fillna(0).astype(float)
 df_Main['Service Sold'] = df_Main['Service Sold'].fillna(0).astype(float)
@@ -100,7 +103,7 @@ df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(0).astype(float)
 df_Main["Total Sold"] = df_Main["Wholesale Sold"].astype(float) + df_Main["Service Sold"].astype(float)
 df_Main = df_Main.sort_values('Total Sold', ascending=False)
 # ^ Add Random Values for SKU Count temporarily
-df_Main["SKU Count"] = random.choice(np.arange(20), size=len(df_Main), replace=True)
+df_Main["SKU Count"] = random.choice(range(20), size=len(df_Main), replace=True)
 
 # ~0.4 secs
 
@@ -222,15 +225,15 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
     if zone == "":
         return storageType, subStorage, "", 0 # Return the Values 
 
-    isSpec, storageType, subStorage, raw_bin_dim = utils.getSpecialtyStorage(pcate, depth, width, height)
+    isSpec, storageType, subStorage, raw_bin_dim = utilsExe.getSpecialtyStorage(pcate, depth, width, height)
 
     if not isSpec: 
         if (zone == "Red Hot") | (zone == "Red"):
-            storageType, subStorage, raw_bin_dim = utils.getRedHotStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getRedHotStorage(depth, width, height)
         elif (zone == "Orange") | (zone == "Yellow"):
-            storageType, subStorage, raw_bin_dim = utils.getOrangeYellowStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getOrangeYellowStorage(depth, width, height)
         elif (zone == "Green") | (zone == "Blue"):   
-            storageType, subStorage, raw_bin_dim = utils.getGreenBlueStorage(depth, width, height)
+            storageType, subStorage, raw_bin_dim = utilsExe.getGreenBlueStorage(depth, width, height)
  
     numOfBins = getNumOfBin(depth, width, height, raw_bin_dim, ohInven, fillFactor)
     binDim = ""
@@ -246,8 +249,8 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
 # #### Apply the Storage Function
 
 
-for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
-#for i in range(df_Main.shape[0]):
+#for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
+for i in range(df_Main.shape[0]):
     # Set the Dimensions of the Data into Variables
     depth = df_Main.loc[i, "Depth"]
     height = df_Main.loc[i, "Height"]
@@ -276,7 +279,7 @@ for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
 # *             6-inch hooks: For SKUs with 10 items or fewer
 # *             12-inch hooks: For SKUs with 10–20 items
 
-for hangingPN in tqdm(df_Main.loc[df_Main['StorageType'] == 'Hanging Specialty Storage', "Part#"], "Completion"): # Get Hanging Parts
+for hangingPN in df_Main.loc[df_Main['StorageType'] == 'Hanging Specialty Storage', "Part#"]: # Get Hanging Parts
     # & df_Main.loc[(df_Main['Part#'] == hangingPN), "Num. Bin Required"] = round(int(df_Main.loc[(df_Main['Part#'] == hangingPN), "OH Inventory"].values[0]) / hookDiv, 4)
     df_Main.loc[(df_Main['Part#'] == hangingPN), "SubStorage"], df_Main.loc[(df_Main['Part#'] == hangingPN), "Bin Type"], hookDiv = ("6-inch Hook", "HS06", 10) if df_Main.loc[(df_Main['Part#'] == hangingPN), "SKU Count"].values[0] <= 10 else ("12-inch Hook", "HS12", 20)
     df_Main.loc[(df_Main['Part#'] == hangingPN), "Num. Bin Required"] = int(df_Main.loc[(df_Main['Part#'] == hangingPN), "OH Inventory"].values[0])  # * Set No. of Hooks = Inventory Count
@@ -307,7 +310,7 @@ if df_Main[df_Main['StorageType'] == 'Tire Specialty Storage'].shape[0] > 0:
 
 # @ Do Actual Storage Allocation based on Inventory, Number of Bins availiable, Handle Overflow, etc...
 
-df_binData = pd.DataFrame(columns=['Bin Label', 'Bin Category', 'Total Bins', 'Filled Amount', 'Bin Order', 'Bin Location', 'Availiability Flag'])
+df_binData = DataFrame(columns=['Bin Label', 'Bin Category', 'Total Bins', 'Filled Amount', 'Bin Order', 'Bin Location', 'Availiability Flag'])
 
 # * High-Density Drawers (2)
 binData = [ 
@@ -358,11 +361,11 @@ binData.extend([
 ])
 
 # Append the Data to the DF
-df_binData = pd.concat([df_binData, pd.DataFrame(binData)], ignore_index=True)
+df_binData = concat([df_binData, DataFrame(binData)], ignore_index=True)
 #df_binData['Total Bins'] = random.choice(range(40, 400), df_binData.shape[0])
 
 
-utils.print_df(df_binData)
+utilsExe.print_df(df_binData)
 
 
 # * Write  the Final BINS Dataset into Excel
@@ -385,7 +388,7 @@ utils.print_df(df_binData)
 
 
 ## @ Red Hot, Red, Orange, and Yellow Zone Non-Specialty Parts
-for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 'Red') | (df_Main['Zone'] == 'Orange') | (df_Main['Zone'] == 'Yellow'), 'Part#'], "Completion"):
+for pn in df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 'Red') | (df_Main['Zone'] == 'Orange') | (df_Main['Zone'] == 'Yellow'), 'Part#']:
     # Get & Set Variables
     actualBin =  ""
     overflowBin = ""
@@ -414,7 +417,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
     # Calculate Variables
     binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
     remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+    partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
     if partsAllocated > 0:   # * If Actual Bin is Availiable
         # Calculate Variables
@@ -441,7 +444,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
                 filledAmtOfBin = binData['Filled Amount'].values[0]
                 binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
                 remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+                partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
                 if partsAllocated > 0:   # If Actual Bin is Availiable
                     binFound = True
@@ -466,7 +469,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
             
             binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), overflowParts)
             actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
 
             # Add  FilledAmount for OverFlow Bin  
@@ -491,7 +494,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
             filledAmtOfBin = binData['Filled Amount'].values[0]
             binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
             if partsAllocated > 0:
                 binFound = True
@@ -519,7 +522,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
         partVolume = partHeight * partWidth * partDepth 
         totalPartVolume = partOHInven * partVolume
         numBins = round(totalPartVolume / binVolume, 3)         ### Number of Bins Required to fill Inventry Parts
-        partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+        partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
         actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
         
         df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
@@ -537,7 +540,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
                 filledAmtOfBin = binData['Filled Amount'].values[0]
                 binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
                 remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+                partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
                 if partsAllocated > 0:
                     binFound = True
@@ -560,7 +563,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
             totalBinOfType = binData['Total Bins'].values[0]
             filledAmtOfBin = binData['Filled Amount'].values[0]
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), overflowParts)
             actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
             
             df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
@@ -583,7 +586,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 
 
 
 ## @ Green and Blue Zone Non-Specialty Parts
-for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'Blue'), 'Part#'], "Completion"):
+for pn in df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'Blue'), 'Part#']:
     # Get Variable
     actualBin =  ""
     overflowBin = ""
@@ -609,7 +612,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
     # Calculate Variables
     binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
     remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+    partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
     if partsAllocated > 0: # & (binData['Availiability Flag'].values[0] == "Yes"):    # If Actual Bin is Availiable
         binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
@@ -617,7 +620,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
         partVolume = partHeight * partWidth * partDepth 
         totalPartVolume = partOHInven * partVolume
         numBins = round(totalPartVolume / binVolume, 3)
-        partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+        partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
         binRequired = round((partsAllocated * partVolume) / binVolume, 3)    
 
         df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binRequired
@@ -637,7 +640,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
                 filledAmtOfBin = binData['Filled Amount'].values[0]
                 binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
                 remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+                partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
                 if partsAllocated > 0:   # @ If Actual Bin is Availiable
                     binFound = True
@@ -660,7 +663,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
             totalBinOfType = binData['Total Bins'].values[0]
             filledAmtOfBin = binData['Filled Amount'].values[0]
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), overflowParts)
             binRequired = round((partsAllocated * partVolume) / binVolume, 3)  
 
             overflowBin = f"{binType} ({binRequired}, {partsAllocated})"
@@ -681,7 +684,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
             filledAmtOfBin = binData['Filled Amount'].values[0]
             binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
             if partsAllocated > 0:   # @ If Actual Bin is Availiable
                 binFound = True
@@ -709,7 +712,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
         partVolume = partHeight * partWidth * partDepth 
         totalPartVolume = partOHInven * partVolume
         numBins = round(totalPartVolume / binVolume, 3)         ### Number of Bins Required to fill Inventry Parts
-        partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+        partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
         binRequired = round((partsAllocated * partVolume) / binVolume, 3)  
         
         df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binRequired
@@ -728,7 +731,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
                 filledAmtOfBin = binData['Filled Amount'].values[0]
                 binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
                 remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+                partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
 
                 if partsAllocated > 0:   # @ If Actual Bin is Availiable
                     binFound = True
@@ -751,7 +754,7 @@ for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'B
             totalBinOfType = binData['Total Bins'].values[0]
             filledAmtOfBin = binData['Filled Amount'].values[0]
             remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+            partsAllocated = min(floor(remainingBinVolume / partVolume), overflowParts)
             binRequired = round((partsAllocated * partVolume) / binVolume, 3) 
 
             ## @ ADD Below Filled Amount for Overflow bins
@@ -803,20 +806,20 @@ for pn in df_Main['Part#']:
     ## * Calculation for Battery
     if "br" in binType.lower():
         remainingBinWidth = (totalBinOfType - filledAmtOfBin) * float(binType[4:6])
-        partsAllocated = min(math.floor(remainingBinWidth / partWidth), partOHInven)
+        partsAllocated = min(floor(remainingBinWidth / partWidth), partOHInven)
         binsRequired = round((partsAllocated * partWidth) / float(binType[4:6]), 4)
         partsLeft = partOHInven - partsAllocated
         overflowBinsNeeded = partsLeft / float(binType[2:4])
     ## * Calculation for Tire
     if "tr" in binType.lower():
         remainingBinWidth = (totalBinOfType - filledAmtOfBin) * float(binType[2:4])
-        partsAllocated = min(math.floor(remainingBinWidth / partWidth), partOHInven)
+        partsAllocated = min(floor(remainingBinWidth / partWidth), partOHInven)
         binsRequired = round((partsAllocated * partWidth) / float(binType[2:4]), 4)
         partsLeft = partOHInven - partsAllocated
         overflowBinsNeeded = round(partsLeft / float(binType[2:4]), 3)
     ## * Calculation for Hanging Storage
     if "hs" in binType.lower():
-        partsAllocated = min(math.floor(totalBinOfType - filledAmtOfBin), partOHInven)
+        partsAllocated = min(floor(totalBinOfType - filledAmtOfBin), partOHInven)
         binsRequired = round(partsAllocated, 4)
         partsLeft = partOHInven - partsAllocated
         overflowBinsNeeded = partsLeft
@@ -824,7 +827,7 @@ for pn in df_Main['Part#']:
     if ("bc" in binType.lower()) | ("bh" in binType.lower()):
         partVolume = partHeight * partWidth * partDepth 
         binVol = fillFactor * (float(binType[2:4]) * float(binType[4:6]) * float(binType[6:8]))
-        partsAllocated = min(math.floor(((totalBinOfType - filledAmtOfBin) * binVol) / partVolume), partOHInven)
+        partsAllocated = min(floor(((totalBinOfType - filledAmtOfBin) * binVol) / partVolume), partOHInven)
         binsRequired = round((partsAllocated * partVolume) / binVol, 4)
         partsLeft = partOHInven - partsAllocated
         overflowBinsNeeded = round((partsLeft * partVolume) / binVolume, 3)
