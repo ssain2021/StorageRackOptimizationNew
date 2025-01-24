@@ -1,29 +1,21 @@
 # Import Necessary Libraries, Utils, and Config Files
 from config import *
 import pandas as pd
-import numpy as np
+#import numpy as np
+from numpy import random
 import math
-import openpyxl
+from openpyxl import load_workbook
+from openpyxl.styles import Alignment
 from tqdm import tqdm
 import utils
 
 # # Data Import and Clean
 
 
-####  AKINS Is OLD Data.  IGNORE AKINS Data for Processing
-## @ Read FILE:: (AKINS FoMoCo_Piece_Sales_112222_YTD.xlsx) into Dataframe (Now Commented out)
-# df_Akins = utils.read_excel(AKINS_FOMO_FILE_PATH)
-# df_Akins['Part#'] = df_Akins['Part#'].apply(lambda a: "".join(str(a).split('-')))
-# if print_df_after_import: utils.print_df(df_Akins, 200) # Print the Dataframe
-# ~1-2secs
-
-
-
 ## @ Read FILE:: (GPARTS Part Measures.xlsx) into Dataframe
 df_Gparts = utils.read_excel(GPARTS_FILE_PATH)
 if print_df_after_import: utils.print_df(df_Gparts) # Print the Dataframe
 # ~17 secs
-
 
 
 ## @ Read FILE:: (Wholesale JAN_Oct_Parts_Ranking_Counter_Invoices_All_Brands.xlsx) into Dataframe
@@ -36,7 +28,6 @@ df_Wholesale = df_Wholesale[(df_Wholesale['Vendor'] == 'FOR')].reset_index()
 # ~7 secs
 
 
-
 ## @ Read FILE:: (Service JAN_Oct_Parts_Ranking_ROs_All_Brands.xlsx) into Dataframe
 df_Service = utils.read_excel(SERVICE_FILE_PATH)
 
@@ -44,7 +35,6 @@ df_Service = utils.read_excel(SERVICE_FILE_PATH)
 df_Service['Description'] = df_Service['Description'].astype(str)
 #df_Service = df_Service.drop(columns=[col for col in df_Service.columns if 'Unnamed' in col], inplace=False)
 df_Service = df_Service[(df_Service['Vendor'] == 'FOR')].reset_index()                                                                                                              
-
 
 
 ## @ Read FILE:: (Counter Pad) into Dataframe
@@ -57,12 +47,11 @@ df_CounterPad.columns = df_CounterPad.iloc[1, :]
 df_CounterPad = df_CounterPad.rename(columns={'Part #': 'Part#'}) # Rename the 'Part #' column to 'Part#'
 df_CounterPad = df_CounterPad[(df_CounterPad['Vendor'] == 'FOR')].reset_index()
 
-if print_df_after_import: utils.print_df(df_CounterPad, 100) # Print the Dataframe
+#if print_df_after_import: utils.print_df(df_CounterPad, 100) # Print the Dataframe
 # ~6 secs
 
 
 # ## Data Processing & Calculation
-
 
 
 # @ Make a Big Final Dataframe
@@ -92,27 +81,6 @@ df_Main = pd.DataFrame({
     'Overflow Comment': "",
     'Bin Location': ""
 })
-
-# df_Main = df_Gparts.loc[:, ['Svc Part Number', 'Svc Part Number Description', 'Is Active?', 'Prod Att - Length', 'Prod Att- Width', 'Prod Att - Height']]
-# # for pn, pdesc, act, ln, wd, hg in zip(df_Gparts['Svc Part Number'], df_Gparts['Svc Part Number Description'], df_Gparts['Is Active?'], df_Gparts['Prod Att - Length'], df_Gparts['Prod Att- Width'], df_Gparts['Prod Att - Height']):
-# #     df_Main.insert
-# df_Main.columns = ['Part#', 'Part Desc.', 'Active', 'Depth', 'Width', 'Height']
-# df_Main.insert(2, 'Part Category', None)
-# df_Main.insert(4, 'Wholesale Sold', 0)
-# df_Main.insert(5, 'Service Sold', 0)
-# df_Main.insert(6, 'Total Sold', 0)
-# df_Main.insert(7, 'OH Inventory', 0)
-# df_Main.insert(8, 'SKU Count', 0)
-# df_Main.insert(9, '0Dimensions', False)
-# df_Main.insert(13, 'Zone', None)
-# df_Main.insert(14, 'StorageType', None)
-# df_Main.insert(15, 'SubStorage', None)
-# df_Main.insert(16, 'Bin Type', None)
-# df_Main.insert(17, 'Num. Bin Required', None)
-# df_Main.insert(18, 'Actual Bin Allocation', None)
-# df_Main.insert(19, 'Overflow Bins', None)
-# df_Main.insert(20, 'Overflow Comment', None)
-# df_Main.insert(21, 'Bin Location', None)
 
 
 # Insert the Rows from other Files
@@ -145,54 +113,9 @@ df_Main['Service Sold'] = df_Main['Service Sold'].fillna(0).astype(float)
 df_Main['Total Sold'] = df_Main['Total Sold'].fillna(0).astype(float)
 df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(0).astype(float)
 # ^ Add Random Values for SKU Count temporarily
-df_Main["SKU Count"] = np.random.choice(np.arange(20), size=len(df_Main), replace=True)
+df_Main["SKU Count"] = random.choice(np.arange(20), size=len(df_Main), replace=True)
 
 # ~0.4 secs
-
-
-
-# from dateutil.parser import parse
-
-# def is_non_numeric(x):
-#     try:
-#         # Try to parse as a number
-#         float(x)
-#         return False
-#     except ValueError:
-#         try:
-#             # If it's not a number, try to parse as a date
-#             parse(x)
-#             return True
-#         except ValueError:
-#             # If it's neither a number nor a date, it's likely alphanumeric
-#             return isinstance(x, str) and x.isalnum()
-
-# # Apply the function to the 'OH Inventory' column
-# df_Main['OH Inventory'] = df_Main['OH Inventory'].apply(lambda x: 0 if is_non_numeric(x) else x)
-
-# # Convert the column to numeric, replacing non-numeric values with NaN
-# df_Main['OH Inventory'] = pd.to_numeric(df_Main['OH Inventory'], errors='coerce')
-
-# # Replace NaN values with 0
-# df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(0)
-
-
-
-
-utils.print_df(df_Main)
-# ~12 secs
-
-
-
-# * SAVE the Marged Main Dataset into Excel, To Avoid The Above Steps During Rerun
-df_Main.to_excel('Gparts-MergedMainData.xlsx', index=False) 
-# ~8 Secs
-
-
-#####   READ  ALREADY SAVED GPARTS-Merged Data
-## @ Read FILE:: (Gparts-MergedMainData.xlsx) into Dataframe
-df_Main = utils.read_excel("Gparts-MergedMainData.xlsx").fillna("")
-# ~6 secs
 
 
 
@@ -204,7 +127,6 @@ df_Main.loc[df_Main["Part#"] == '9OO439510', ["0Dimensions", "Depth", "Height", 
 df_Main.loc[df_Main["Part#"] == '9OO1732002500', ["0Dimensions", "Depth", "Height", "Width", "OH Inventory"]] = [False, 50,50,5,250]
 df_Main.loc[df_Main["Part#"] == '9OO3004901', ["0Dimensions", "Depth", "Height", "Width", "OH Inventory"]] = [False, 40,40,4,25]
 # & df_Main[['TIRE' in s for s in df_Main["Part Desc."]]]
-
 
 
 ## ^ Part Categorization  BUT Client Will Share Actual Part Category
@@ -255,15 +177,10 @@ def part_categorization(df_toBeCategorized, categoryColName):
         df_toBeCategorized.loc[i, categoryColName] = category
         
 
-
-
 part_categorization(df_Main, 'Part Category')
 # ~8 secs
 
-
 # ### Apply Zoning
-
-
 
 # @ Apply Zoning based on Time Period/Sale
 
@@ -273,16 +190,12 @@ def Apply_Zoning(df_toBeZoned, zones, soldColName='Total Sold', zoneColName='Zon
     df_toBeZoned.loc[df_toBeZoned[soldColName] < 0, zoneColName] = None
 
 
-
 ## * Run the Apply_Zoning on df_Main
 Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
 
 
 ## * Check each Zone's number of Part Numbers
 df_Main['Zone'].value_counts()
-
-
-
 
 
 # ### Specialty Storage Assignment
@@ -411,39 +324,39 @@ df_binData = pd.DataFrame(columns=['Bin Label', 'Bin Category', 'Total Bins', 'F
 
 # * High-Density Drawers (2)
 binData = [ 
-    {'Bin Label': 'D362406', 'Bin Category': 'Drawer', 'Total Bins': 5, 'Filled Amount': 0, 'Bin Order': 1, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-    {'Bin Label': 'D482406', 'Bin Category': 'Drawer', 'Total Bins': 4, 'Filled Amount': 0, 'Bin Order': 2, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    {'Bin Label': 'D362406', 'Bin Category': 'Drawer', 'Total Bins': 15, 'Filled Amount': 0, 'Bin Order': 1, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'D482406', 'Bin Category': 'Drawer', 'Total Bins': 14, 'Filled Amount': 0, 'Bin Order': 2, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
  ]
 # * Clip-Shelving (6)
 binData.extend([
-    {'Bin Label': 'C361215', 'Bin Category': 'Clip', 'Total Bins': 4, 'Filled Amount': 0, 'Bin Order': 3, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-    {'Bin Label': 'C361815', 'Bin Category': 'Clip', 'Total Bins': 6, 'Filled Amount': 0, 'Bin Order': 4, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-    {'Bin Label': 'C362415', 'Bin Category': 'Clip', 'Total Bins': 8, 'Filled Amount': 0.0, 'Bin Order': 5, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},    
-    {'Bin Label': 'C481215', 'Bin Category': 'Clip', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 6, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},  
-    {'Bin Label': 'C481815', 'Bin Category': 'Clip', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 7, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},   
-    {'Bin Label': 'C482415', 'Bin Category': 'Clip', 'Total Bins': 7, 'Filled Amount': 0.0, 'Bin Order': 8, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    {'Bin Label': 'C361215', 'Bin Category': 'Clip', 'Total Bins': 34, 'Filled Amount': 0, 'Bin Order': 3, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'C361815', 'Bin Category': 'Clip', 'Total Bins': 36, 'Filled Amount': 0, 'Bin Order': 4, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'C362415', 'Bin Category': 'Clip', 'Total Bins': 48, 'Filled Amount': 0.0, 'Bin Order': 5, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},    
+    {'Bin Label': 'C481215', 'Bin Category': 'Clip', 'Total Bins': 43, 'Filled Amount': 0.0, 'Bin Order': 6, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},  
+    {'Bin Label': 'C481815', 'Bin Category': 'Clip', 'Total Bins': 35, 'Filled Amount': 0.0, 'Bin Order': 7, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'},   
+    {'Bin Label': 'C482415', 'Bin Category': 'Clip', 'Total Bins': 47, 'Filled Amount': 0.0, 'Bin Order': 8, 'GB Bin Order': 0,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
 ])
 
 # * Bulk-Storage (18)
 binData.extend([
-  {'Bin Label': 'B482448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 9, 'GB Bin Order': 1,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B483648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 10, 'GB Bin Order': 2,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B484248', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 11, 'GB Bin Order': 3,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B484848', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 12, 'GB Bin Order': 4,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B487248', 'Bin Category': 'Bulk', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 13, 'GB Bin Order': 5,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B489648', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 14, 'GB Bin Order': 6,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B722448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 15, 'GB Bin Order': 7,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B723648', 'Bin Category': 'Bulk', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 16, 'GB Bin Order': 8,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B724248', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 17, 'GB Bin Order': 9,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B724848', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 18, 'GB Bin Order': 10,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B727248', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 19, 'GB Bin Order': 11,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B729648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 20, 'GB Bin Order': 12,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B962448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 21, 'GB Bin Order': 13,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B963648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 22, 'GB Bin Order': 14,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B964248', 'Bin Category': 'Bulk', 'Total Bins': 7, 'Filled Amount': 0.0, 'Bin Order': 23, 'GB Bin Order': 15,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B964848', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 24, 'GB Bin Order': 16,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B967248', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 25, 'GB Bin Order': 17,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
-  {'Bin Label': 'B969648', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 26, 'GB Bin Order': 18,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+  {'Bin Label': 'B482448', 'Bin Category': 'Bulk', 'Total Bins': 40, 'Filled Amount': 0.0, 'Bin Order': 9, 'GB Bin Order': 1,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B483648', 'Bin Category': 'Bulk', 'Total Bins': 25, 'Filled Amount': 0.0, 'Bin Order': 10, 'GB Bin Order': 2,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B484248', 'Bin Category': 'Bulk', 'Total Bins': 26, 'Filled Amount': 0.0, 'Bin Order': 11, 'GB Bin Order': 3,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B484848', 'Bin Category': 'Bulk', 'Total Bins': 24, 'Filled Amount': 0.0, 'Bin Order': 12, 'GB Bin Order': 4,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B487248', 'Bin Category': 'Bulk', 'Total Bins': 13, 'Filled Amount': 0.0, 'Bin Order': 13, 'GB Bin Order': 5,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B489648', 'Bin Category': 'Bulk', 'Total Bins': 24, 'Filled Amount': 0.0, 'Bin Order': 14, 'GB Bin Order': 6,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B722448', 'Bin Category': 'Bulk', 'Total Bins': 24, 'Filled Amount': 0.0, 'Bin Order': 15, 'GB Bin Order': 7,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B723648', 'Bin Category': 'Bulk', 'Total Bins': 23, 'Filled Amount': 0.0, 'Bin Order': 16, 'GB Bin Order': 8,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B724248', 'Bin Category': 'Bulk', 'Total Bins': 24, 'Filled Amount': 0.0, 'Bin Order': 17, 'GB Bin Order': 9,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B724848', 'Bin Category': 'Bulk', 'Total Bins': 26, 'Filled Amount': 0.0, 'Bin Order': 18, 'GB Bin Order': 10,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B727248', 'Bin Category': 'Bulk', 'Total Bins': 40, 'Filled Amount': 0.0, 'Bin Order': 19, 'GB Bin Order': 11,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B729648', 'Bin Category': 'Bulk', 'Total Bins': 25, 'Filled Amount': 0.0, 'Bin Order': 20, 'GB Bin Order': 12,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B962448', 'Bin Category': 'Bulk', 'Total Bins': 24, 'Filled Amount': 0.0, 'Bin Order': 21, 'GB Bin Order': 13,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B963648', 'Bin Category': 'Bulk', 'Total Bins': 35, 'Filled Amount': 0.0, 'Bin Order': 22, 'GB Bin Order': 14,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B964248', 'Bin Category': 'Bulk', 'Total Bins': 37, 'Filled Amount': 0.0, 'Bin Order': 23, 'GB Bin Order': 15,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B964848', 'Bin Category': 'Bulk', 'Total Bins': 34, 'Filled Amount': 0.0, 'Bin Order': 24, 'GB Bin Order': 16,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B967248', 'Bin Category': 'Bulk', 'Total Bins': 36, 'Filled Amount': 0.0, 'Bin Order': 25, 'GB Bin Order': 17,'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+  {'Bin Label': 'B969648', 'Bin Category': 'Bulk', 'Total Bins': 34, 'Filled Amount': 0.0, 'Bin Order': 26, 'GB Bin Order': 18,'Bin Location': 'None', 'Availiability Flag': 'Yes'}
 ])
 
 # * Specialty (7) TR
@@ -458,7 +371,7 @@ binData.extend([
 
 # Append the Data to the DF
 df_binData = pd.concat([df_binData, pd.DataFrame(binData)], ignore_index=True)
-df_binData['Total Bins'] = np.random.choice(range(40, 400), df_binData.shape[0])
+#df_binData['Total Bins'] = random.choice(range(40, 400), df_binData.shape[0])
 
 
 utils.print_df(df_binData)
@@ -994,25 +907,25 @@ ws.column_dimensions['D'].hidden = True
 ws.freeze_panes = 'A2'
 
 for cell in ws['B']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['E']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['O']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['P']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['Q']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['R']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['S']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['T']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['U']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 for cell in ws['V']:
-    cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
+    cell.alignment = Alignment(horizontal='center', vertical='center')
 
 
 wb.save('FinalDataset.xlsx')
