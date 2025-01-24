@@ -1,9 +1,10 @@
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-import math
-import openpyxl
+#import math
+#import openpyxl
 import utilsExe
+from io import StringIO
 
 totalDaysOfData = 300    # Total Days in Dataset
 redHot1SaleTP = 1        # 1 Sell per 1 day
@@ -25,6 +26,8 @@ zones = {
 fillFactor = 0.7
 tirePercent = 0.5
 vendor = 'FOR'
+
+
 
 def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1VendorCol, sold2VendorCol, invenVendorCol, filterVendor):
     df_dimenFile = utilsExe.read_excel(dimenFile)      
@@ -82,7 +85,7 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
     # Set 0Dimensions
     df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
     # Drop 0Dimensions Rows if drop0Dims
-    if drop0Dims: df_Main = df_Main[df_Main["0Dimensions"] == False]
+    if drop0Dims == "true": df_Main = df_Main[df_Main["0Dimensions"] == False]
     # Remove Alphanumeric Strings
     df_Main['OH Inventory'] = pd.to_numeric(df_Main['OH Inventory'], errors='coerce')
     df_Main['Sold 1'] = pd.to_numeric(df_Main['Sold 1'], errors='coerce')
@@ -204,8 +207,10 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
 
 
 def applyStorage(df_Main):
-    #for i in tqdm(range(df_Main.shape[0]), desc="Completion"):
-    for i in range(df_Main.shape[0]):
+    output = StringIO()
+    for i in tqdm(range(df_Main.shape[0]), desc="Completion", file=output):
+    #for i in range(df_Main.shape[0]):
+        yield output.getvalue().split('\r')[-1]
         depth = df_Main.loc[i, "Depth"]
         height = df_Main.loc[i, "Height"]
         width = df_Main.loc[i, "Width"]
@@ -244,12 +249,21 @@ def applyStorage(df_Main):
 
 def applyZoningStorageFunc(config):
     df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
-    print(config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
+    yield "Files Read... Creating Main Merged Dataset"
     df_Main = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
-    df_Main.to_excel('Final_Dataset11.xlsx', index=False) 
-    #part_categorization(df_Main, 'Part Category')
+    yield "Main Merged Dataset Created.... Starting Parts Categorization"
+    part_categorization(df_Main, 'Part Category')
+    yield "Parts Categorization Done... Starting to Zoning all Parts"
     Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
-    applyStorage(df_Main)
+    yield "Apply Zoning Done.... Starting to Allocating Part Storage"
+    generator = applyStorage(df_Main)
+    while True:
+        try:
+            message = next(generator)
+            yield(message)
+        except StopIteration:
+            break
+    yield "Storage Allocation Done"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
     
     

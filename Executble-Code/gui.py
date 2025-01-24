@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from applyZoningStorageFunc import applyZoningStorageFunc
 import json
+from threading import Thread
 
 def string_to_json(config_str):
     try:
@@ -173,11 +174,23 @@ class MainGUI:
         self.open_button = tk.Button(self.button_frame, text="Apply Zone and Storage", command=self.aSZ)
         self.open_button.pack(side=tk.LEFT, padx=10)
 
-        self.log_label = tk.Label(self.root, text="Log:")
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(pady=20)
+
+        self.open_button = tk.Button(self.button_frame, text="Actual Bin Allocation")
+        self.open_button.pack(side=tk.LEFT, padx=10)
+
+        self.log_label = tk.Label(self.root, text="Log (Info/Error):")
         self.log_label.pack(pady=20)
 
-        self.log_text = tk.Text(self.root, height=10)
+        self.log_text = tk.Text(self.root, height=15)
         self.log_text.pack()
+
+        self.process_label = tk.Label(self.root, text="Process:")
+        self.process_label.pack(pady=20)
+
+        self.process_text = tk.Text(self.root, height=10)
+        self.process_text.pack()
 
     def open_config_window(self):
         ConfigWindow()
@@ -188,11 +201,26 @@ class MainGUI:
         self.root.after(100)  # Scroll to bottom after adding new log
 
     def aSZ(self):
-        try:
-            applyZoningStorageFunc(config)
-        except Exception as e:
-            self.log_text.insert(tk.END, e)
+        thread = Thread(target=self.aSZMain)
+        thread.start()
 
+    def aSZMain(self):
+        self.process_text.insert(tk.END, "Started Applying Zoning and Storage\n")
+        generator = applyZoningStorageFunc(config)
+        while True:
+            try:
+                message = next(generator)
+                if "Completion:" in message:
+                    self.log_text.insert(tk.END, message + "\n")
+                    self.log_text.see(tk.END)
+                    continue
+                self.process_text.insert(tk.END, message + "\n")
+                self.process_text.see(tk.END)
+            except StopIteration:
+                break
+            except Exception as e:
+                self.log_text.insert(tk.END, e)
+                self.log_text.see(tk.END)
 
     def run(self):
         self.root.mainloop()
