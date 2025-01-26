@@ -1,6 +1,6 @@
 from tqdm import tqdm
-import pandas as pd
-import numpy as np
+from pandas import to_numeric, DataFrame
+from numpy import random
 #import math
 #import openpyxl
 import utilsExe
@@ -30,18 +30,28 @@ vendor = 'FOR'
 
 
 def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1VendorCol, sold2VendorCol, invenVendorCol, filterVendor):
+    yield "Read Files Completion:     0%|    | 0/4"
     df_dimenFile = utilsExe.read_excel(dimenFile)      
     if filterVendor: df_dimenFile = df_dimenFile[(df_dimenFile[dimenVendorCol] == filterVendor)].reset_index()
+    yield "- Dimension File Read"
+    yield "Read Files Completion:     25%|#   | 1/4"
     df_soldFile1 = utilsExe.read_excel(soldFile1)
     if filterVendor: df_soldFile1 = df_soldFile1[(df_soldFile1[sold1VendorCol] == filterVendor)].reset_index()
+    yield "- Sold File 1 Read"
+    yield "Read Files Completion:     50%|##  | 2/4"
     df_soldFile2 = utilsExe.read_excel(soldFile2)
     if filterVendor: df_soldFile2 = df_soldFile2[(df_soldFile2[sold2VendorCol] == filterVendor)].reset_index()
+    yield "- Sold File 2 Read"
+    yield "Read Files Completion:     75%|### | 3/4"
     df_Inven = utilsExe.read_excel(invenFile)
     if filterVendor: df_Inven = df_Inven[(df_Inven[invenVendorCol] == filterVendor)].reset_index()
-    return df_dimenFile, df_soldFile1, df_soldFile2, df_Inven
+    yield "- Inventory File Read"
+    yield "Read Files Completion:     100%|#####| 4/4"
+    yield df_dimenFile, df_soldFile1, df_soldFile2, df_Inven
 
 def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols, sold1Cols, sold2Cols, invenCols, drop0Dims):
-    df_Main = pd.DataFrame({
+    yield "Merged Dataset Creation Completion:     0%|          | 0/10"
+    df_Main = DataFrame({
         'Part#': df_dimenFile[dimenCols['Part# Column']],
         'Part Desc.': df_dimenFile[dimenCols['Desc. Column']],
         'Part Category': "",
@@ -65,42 +75,59 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
         'Bin Location': ""
     })
 
+    yield "Merged Dataset Creation Completion:     10%|#         | 2/20"
 
     # # * Insert the Rows from other Files
     oh_dict = df_soldFile1.set_index(sold1Cols['Part# Column'])[sold1Cols['Sold Column']].to_dict()
     df_Main['Sold 1'] = df_Main['Part#'].map(oh_dict)
-
+    yield "Merged Dataset Creation Completion:     15%|#1        | 3/20"
     oh_dict = df_soldFile2.set_index(sold2Cols['Part# Column'])[sold2Cols['Sold Column']].to_dict()
     df_Main['Sold 2'] = df_Main['Part#'].map(oh_dict)
-
+    yield "Merged Dataset Creation Completion:     20%|##        | 4/20"
     oh_dict = df_Inven.set_index(invenCols['Part# Column'])[invenCols['Inventory Column']].to_dict()
     df_Main['OH Inventory'] = df_Main['Part#'].map(oh_dict)
+    yield "Merged Dataset Creation Completion:     25%|##1       | 5/20"
     oh_dict = df_Inven.set_index(invenCols['Part# Column'])[invenCols['Bin Column']].to_dict()
     df_Main['Bin Location'] = df_Main['Part#'].map(oh_dict)
+    yield "Merged Dataset Creation Completion:     30%|###       | 6/20"
 
 
     # Process and Clean
     # Drop rows with Sold and Inventory 'nan'
     df_Main = df_Main.dropna(subset=["Sold 1", "Sold 2", "OH Inventory"], how="all").reset_index(drop=True)
+    yield "- Dataset Created.. Processing/Cleaning the Data"
+    yield "Merged Dataset Creation Completion:     40%|####      | 8/20"
     # Set 0Dimensions
     df_Main.loc[(df_Main["Depth"] == 0) | (df_Main["Height"] == 0) | (df_Main["Width"] == 0), "0Dimensions"] = True
+    yield "Merged Dataset Creation Completion:     45%|####1     | 9/20"
     # Drop 0Dimensions Rows if drop0Dims
-    if drop0Dims == "true": df_Main = df_Main[df_Main["0Dimensions"] == False]
+    if drop0Dims == "true": df_Main = df_Main[df_Main["0Dimensions"] == False]; yield "- Rows with 0 Dimensions dropped"
     # Remove Alphanumeric Strings
-    df_Main['OH Inventory'] = pd.to_numeric(df_Main['OH Inventory'], errors='coerce')
-    df_Main['Sold 1'] = pd.to_numeric(df_Main['Sold 1'], errors='coerce')
-    df_Main['Sold 2'] = pd.to_numeric(df_Main['Sold 2'], errors='coerce')
+    df_Main['OH Inventory'] = to_numeric(df_Main['OH Inventory'], errors='coerce')
+    yield "Merged Dataset Creation Completion:     50%|#####     | 10/20"
+    df_Main['Sold 1'] = to_numeric(df_Main['Sold 1'], errors='coerce')
+    yield "Merged Dataset Creation Completion:     55%|#####1    | 11/20"
+    df_Main['Sold 2'] = to_numeric(df_Main['Sold 2'], errors='coerce')
+    yield "Merged Dataset Creation Completion:     60%|######    | 12/20"
     # Fill 'nan' with 0 and convert to float
     df_Main['Sold 1'] = df_Main['Sold 1'].fillna(0).astype(float)
+    yield "Merged Dataset Creation Completion:     65%|######1   | 13/20"
     df_Main['Sold 2'] = df_Main['Sold 2'].fillna(0).astype(float)
+    yield "Merged Dataset Creation Completion:     70%|#######   | 14/20"
     df_Main['Total Sold'] = df_Main['Total Sold'].fillna(0).astype(float)
+    yield "Merged Dataset Creation Completion:     75%|#######1  | 15/20"
     df_Main['OH Inventory'] = df_Main['OH Inventory'].fillna(0).astype(float)
+    yield "Merged Dataset Creation Completion:     80%|########  | 16/20"
+    yield "- Alphanumeric Strings removed... 'NAN' removed... Main Columns converted to Float"
     # Set and Sort by Total_Sold
-    df_Main["Total Sold"] = df_Main["Sold 1"].astype(float) + df_Main["Sold 2"].astype(float)
+    df_Main["Total Sold"] = df_Main["Sold 1"] + df_Main["Sold 2"]
     df_Main = df_Main.sort_values('Total Sold', ascending=False).reset_index(drop=True)
+    yield "Merged Dataset Creation Completion:     90%|######### | 18/20"
     # ^ Add Random Values for SKU Count temporarily
-    df_Main["SKU Count"] = np.random.choice(np.arange(20), size=len(df_Main), replace=True)
-    return df_Main
+    df_Main["SKU Count"] = random.choice(range(20), size=len(df_Main), replace=True)
+    yield "- Random Values for SKU Count given"
+    yield "Merged Dataset Creation Completion:     100%|##########| 20/20"
+    yield df_Main
 
 def part_categorization(df_toBeCategorized, categoryColName):
     # TODO: Add more categories
@@ -152,6 +179,7 @@ def part_categorization(df_toBeCategorized, categoryColName):
 def Apply_Zoning(df_toBeZoned, zones, soldColName='Total Sold', zoneColName='Zone'): 
     df_toBeZoned.loc[:, zoneColName] = df_toBeZoned[soldColName].apply(lambda x: next((zone for zone, ratio in zones.items() if x >= ratio), list(zones.keys())[-1]))
     df_toBeZoned.loc[df_toBeZoned[soldColName] < 0, zoneColName] = None
+    return df_toBeZoned['Zone'].value_counts()
 
 def getNumOfBin(depth, width, height, raw_bin_dim, ohInven, fillFactor):
     # * Raw Bin Dimensions has this format :-  Height_Depth_Width
@@ -208,7 +236,7 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
 
 def applyStorage(df_Main):
     output = StringIO()
-    for i in tqdm(range(df_Main.shape[0]), desc="Completion", file=output):
+    for i in tqdm(range(df_Main.shape[0]), desc="Storage Apply Completion", file=output):
     #for i in range(df_Main.shape[0]):
         yield output.getvalue().split('\r')[-1]
         depth = df_Main.loc[i, "Depth"]
@@ -248,13 +276,36 @@ def applyStorage(df_Main):
 
 
 def applyZoningStorageFunc(config):
-    df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
+    df_dimenFile = df_soldFile1 = df_soldFile2 = df_Inven = None
+    generator = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
+    while True:
+        try:
+            message = next(generator)
+            if type(message) == str:
+                yield(message)
+            else:
+                df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = message
+        except StopIteration:
+            break
+    # df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
     yield "Files Read... Creating Main Merged Dataset"
-    df_Main = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
+    df_Main = None
+    generator = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
+    while True:
+        try:
+            message = next(generator)
+            if type(message) == str:
+                yield(message)
+            else:
+                df_Main = message
+        except StopIteration:
+            break
+    yield f"- Final Dataset Rows Count: {df_Main.shape[0]}"
     yield "Main Merged Dataset Created.... Starting Parts Categorization"
     part_categorization(df_Main, 'Part Category')
     yield "Parts Categorization Done... Starting to Zoning all Parts"
-    Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
+    vCounts = Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
+    yield "- Zone Counts: " + str(vCounts)
     yield "Apply Zoning Done.... Starting to Allocating Part Storage"
     generator = applyStorage(df_Main)
     while True:
