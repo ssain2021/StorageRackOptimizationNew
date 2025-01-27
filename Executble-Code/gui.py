@@ -74,8 +74,8 @@ class ConfigWindow:
         self.drop_0_checkbox.grid(row=8, column=2)
 
         self.show_options("Dimensions", 1, "Path") # , "Vendor Column", "Width Column", "Height Column", "Depth Column", "Part# Column", "Desc. Column")
-        self.show_options("Sold File 1", 3, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
-        self.show_options("Sold File 2", 5, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
+        self.show_options("Wholesale", 3, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
+        self.show_options("Service", 5, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
         self.show_options("Inventory", 7, "Path") # , "Vendor Column", "Inventory Column", "Bin Column", "Part# Column")
 
         
