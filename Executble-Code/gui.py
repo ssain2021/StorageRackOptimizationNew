@@ -1,9 +1,9 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from applyZoningStorageFunc import applyZoningStorageFunc, actualBinAllocation
 import json
 from threading import Thread
-from pandas import DataFrame
+
 
 def string_to_json(config_str):
     try:
@@ -139,7 +139,15 @@ class ConfigWindow:
             label.grid(row=i+1, column=0)
             entry = ttk.Entry(options_frame, textvariable=var)
             entry.grid(row=i+1, column=1)
+            button = ttk.Button(options_frame, text="Browse", command=lambda t=title, o=option: self.browse_file(t, o))
+            button.grid(row=i+1, column=1)
             self.var_dict[title][option] = entry
+
+    def browse_file(self, title, option):
+        filepath = filedialog.askopenfilename(title=f"Select {title} file")
+        if filepath:
+            self.var_dict[title][option].delete("1", tk.END)
+            self.var_dict[title][option].insert(tk.END, filepath)
 
     def run(self):
         self.root.mainloop()
@@ -151,10 +159,7 @@ class MainGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Stockmap GUI")
-                # Create a title label with larger font
-        self.title_label = tk.Label(
-            self.root, text="Stockmap GUI", font=("Helvetica", 20, "bold"), fg="#0066cc") # Optional: Set a custom color
-        
+        self.title_label = tk.Label(self.root, text="Stockmap GUI", font=("Helvetica", 20, "bold"), fg="#0066cc")
         self.title_label.pack(pady=20)  # Add some padding around the label
         self.aSZDone = False
         self.df_Main = None
@@ -162,44 +167,35 @@ class MainGUI:
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-
         self.buttons['config'] = tk.Button(self.button_frame, text="Open Config Window", font=("Helvetica", 11, "bold"), command=self.open_config_window, state="disabled")
         self.buttons['config'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-
-        self.buttons['apply'] = tk.Button(self.button_frame, text="Apply Zone and Storage", font=("Helvetica", 11, "bold"), command=self.start_aSZ_process)
+        self.buttons['apply'] = tk.Button(self.button_frame, text="Apply Zone and Storage", font=("Helvetica", 11, "bold"), command=self.aSZ)
         self.buttons['apply'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-
         self.buttons['allocation'] = tk.Button(self.button_frame, text="Actual Bin Allocation", font=("Helvetica", 11, "bold"), command=self.aBA)
         self.buttons['allocation'].pack(side=tk.LEFT, padx=10)
             
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(pady=20)
         self.buttons['close'] = tk.Button(self.button_frame, text="Close", font=("Helvetica", 11, "bold"), command=self.close)
         self.buttons['close'].pack(side=tk.LEFT, padx=10)
 
         self.log_label = tk.Label(self.root, text="Log (Info / Error):", font=("Helvetica", 11, "bold"))
         self.log_label.pack(pady=20)
-
-        self.log_text = tk.Text(self.root, height=15)
+        self.log_text = tk.Text(self.root, height=15, width=100, font=('Segoe UI Emoji', 10))
         self.log_text.pack()
-        self.log_text.config(width=100)
 
-        # self.progress_label = tk.Label(self.root, text="Process:")
-        # self.progress_label.pack(pady=20)
-        self.progress_text = tk.Text(self.root, height=1)
+        self.progress_text = tk.Text(self.root, height=1, width=100, font=('Segoe UI Emoji', 10))
         self.progress_text.pack()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
 
 
-    def start_aSZ_process(self):
-        self.disable_all_buttons()
-        self.thread = Thread(target=self.aSZMain)
-        self.thread.start()
 
     def disable_all_buttons(self):
         for button in self.buttons.values():
@@ -209,39 +205,25 @@ class MainGUI:
         for button in self.buttons.values():
             button.config(state="active")
 
-
-    def on_closing(self):
-        try:
-            if self.thread and self.thread.is_alive():
-                self.stop_thread = True
-                self.thread.join()
-                self.root.destroy()
-        except Exception:
-            # If no thread is running, we can close immediately
-            self.root.destroy()
-
-    def enable_button(self):
-        self.open_button.config(state="active")  # Re-enable the button
-
-
     def open_config_window(self):
         ConfigWindow()
 
-
-    def aSZ(self):
-        self.thread = Thread(target=self.aSZMain)
-        self.thread.start()
-
     def close(self):
         try:
-            if self.thread and self.thread.is_alive():
+            if self.thread.is_alive():
                 self.stop_thread = True
                 self.thread.join()
                 self.root.destroy()
         except Exception:
-            # If no thread is running, we can close immediately
             self.root.destroy()
-        
+
+
+
+    def aSZ(self):
+
+        self.disable_all_buttons()
+        self.thread = Thread(target=self.aSZMain)
+        self.thread.start()
 
     def aSZMain(self):
         self.log_text.insert(tk.END, "Process Started... Reading Files... \n")
@@ -276,6 +258,7 @@ class MainGUI:
         #self.root.after(100, self.root.update)  # Schedule a GUI update
    
         
+
     def aBA(self):
         if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zone and Storage Button\n"); return
         self.thread = Thread(target=self.aBAMain)
@@ -306,6 +289,7 @@ class MainGUI:
             #     self.log_text.insert(tk.END, e)
             #     self.log_text.see(tk.END)
         self.thread.terminate()
+
 
     def run(self):
         self.root.mainloop()
