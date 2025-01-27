@@ -272,9 +272,10 @@ class MainGUI:
         
         # After the process is complete, re-enable the button
         self.root.after(0, self.enable_all_buttons)
-    
+        #self.root.update_idletasks()  # Process all idle tasks
+        #self.root.after(100, self.root.update)  # Schedule a GUI update
+   
         
-
     def aBA(self):
         if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zone and Storage Button\n"); return
         self.thread = Thread(target=self.aBAMain)
