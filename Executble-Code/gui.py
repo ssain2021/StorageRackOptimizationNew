@@ -1,7 +1,7 @@
-import tkinter as tk
+import tkinter as tk, json
 from tkinter import ttk, filedialog
 from applyZoningStorageFunc import applyZoningStorageFunc, actualBinAllocation
-import json
+from sys import exit
 from threading import Thread
 
 
@@ -36,8 +36,8 @@ class ConfigWindow:
 
         # Dimensions File
         self.dimensions_label = tk.Label(self.config_frame, text="Dimensions File")
-        self.dimensions_label.grid(row=0, column=0, columnspan=2)
-        self.open_button = ttk.Button(self.config_frame, text="▼")
+        self.dimensions_label.grid(row=0, column=0)
+        self.open_button = ttk.Label(self.config_frame, text="▼")
         self.open_button.grid(row=0, column=2)
         self.dimensions_frame = tk.Frame(self.config_frame)
         self.dimensions_frame.grid(row=1, column=0, columnspan=3)
@@ -45,7 +45,7 @@ class ConfigWindow:
         # Sold File 1
         self.sold_file_1_label = tk.Label(self.config_frame, text="Sold File 1")
         self.sold_file_1_label.grid(row=2, column=0, columnspan=2)
-        self.open_button_1 = ttk.Button(self.config_frame, text="▼")
+        self.open_button_1 = ttk.Label(self.config_frame, text="▼")
         self.open_button_1.grid(row=2, column=2)
         self.sold_file_1_frame = tk.Frame(self.config_frame)
         self.sold_file_1_frame.grid(row=3, column=0, columnspan=3)
@@ -53,7 +53,7 @@ class ConfigWindow:
         # Sold File 2
         self.sold_file_2_label = tk.Label(self.config_frame, text="Sold File 2")
         self.sold_file_2_label.grid(row=4, column=0, columnspan=2)
-        self.open_button_2 = ttk.Button(self.config_frame, text="▼")
+        self.open_button_2 = ttk.Label(self.config_frame, text="▼")
         self.open_button_2.grid(row=4, column=2)
         self.sold_file_2_frame = tk.Frame(self.config_frame)
         self.sold_file_2_frame.grid(row=5, column=0, columnspan=3)
@@ -140,7 +140,7 @@ class ConfigWindow:
             entry = ttk.Entry(options_frame, textvariable=var)
             entry.grid(row=i+1, column=1)
             button = ttk.Button(options_frame, text="Browse", command=lambda t=title, o=option: self.browse_file(t, o))
-            button.grid(row=i+1, column=1)
+            button.grid(row=i+1, column=3)
             self.var_dict[title][option] = entry
 
     def browse_file(self, title, option):
@@ -167,7 +167,7 @@ class MainGUI:
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-        self.buttons['config'] = tk.Button(self.button_frame, text="Open Config Window", font=("Helvetica", 11, "bold"), command=self.open_config_window, state="disabled")
+        self.buttons['config'] = tk.Button(self.button_frame, text="Open Config Window", font=("Helvetica", 11, "bold"), command=self.open_config_window)#, state="disabled")
         self.buttons['config'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
@@ -182,8 +182,8 @@ class MainGUI:
             
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-        self.buttons['close'] = tk.Button(self.button_frame, text="Close", font=("Helvetica", 11, "bold"), command=self.close)
-        self.buttons['close'].pack(side=tk.LEFT, padx=10)
+        self.closeButton = tk.Button(self.button_frame, text="Close", font=("Helvetica", 11, "bold"), command=self.close)
+        self.closeButton.pack(side=tk.LEFT, padx=10)
 
         self.log_label = tk.Label(self.root, text="Log (Info / Error):", font=("Helvetica", 11, "bold"))
         self.log_label.pack(pady=20)
@@ -193,7 +193,7 @@ class MainGUI:
         self.progress_text = tk.Text(self.root, height=1, width=100, font=('Segoe UI Emoji', 10))
         self.progress_text.pack()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.close)
+        #self.root.protocol("WM_DELETE_WINDOW", self.close)
 
 
 
@@ -209,20 +209,27 @@ class MainGUI:
         ConfigWindow()
 
     def close(self):
-        try:
-            if self.thread.is_alive():
-                self.stop_thread = True
-                self.thread.join()
-                self.root.destroy()
-        except Exception:
-            self.root.destroy()
+        # try:
+        #     if self.thread.is_alive():
+        #         print("ALIVE")
+        #         def closeThread():
+        #             print("stopping")
+        #             self.thread.join()
+        #             self.root.destroy()
+        #         Thread(target=closeThread).start()
+        # except Exception:
+        #     self.root.destroy()
+        # def closeThread():
+        #     exit()
+        # Thread(target=closeThread).start()
+        self.root.destroy()
 
 
 
     def aSZ(self):
-
         self.disable_all_buttons()
         self.thread = Thread(target=self.aSZMain)
+        self.thread.daemon = True
         self.thread.start()
 
     def aSZMain(self):
@@ -262,6 +269,7 @@ class MainGUI:
     def aBA(self):
         if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zone and Storage Button\n"); return
         self.thread = Thread(target=self.aBAMain)
+        self.thread.daemon = True
         self.thread.start()
 
     def aBAMain(self):
