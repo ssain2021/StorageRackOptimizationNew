@@ -31,18 +31,18 @@ vendor = 'FOR'
 
 def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1VendorCol, sold2VendorCol, invenVendorCol, filterVendor):
     yield "Read Files Completion:     0%|    | 0/4"
-    yield f"- Reading File: {dimenFile.split("\\")[-1]} ... "
+    yield f"- Reading File: {dimenFile.split("/")[-1]} ... "
     df_dimenFile = utilsExe.read_excel(dimenFile)      
     if filterVendor: df_dimenFile = df_dimenFile[(df_dimenFile[dimenVendorCol] == filterVendor)].reset_index()
-    yield f"- Reading File: {soldFile1.split("\\")[-1]} ... "
+    yield f"- Reading File: {soldFile1.split("/")[-1]} ... "
     yield "Read Files Completion:     25%|#   | 1/4"
     df_soldFile1 = utilsExe.read_excel(soldFile1)
     if filterVendor: df_soldFile1 = df_soldFile1[(df_soldFile1[sold1VendorCol] == filterVendor)].reset_index()
-    yield f"- Reading File: {soldFile2.split("\\")[-1]} ... "
+    yield f"- Reading File: {soldFile2.split("/")[-1]} ... "
     yield "Read Files Completion:     50%|##  | 2/4"
     df_soldFile2 = utilsExe.read_excel(soldFile2)
     if filterVendor: df_soldFile2 = df_soldFile2[(df_soldFile2[sold2VendorCol] == filterVendor)].reset_index()
-    yield f"- Reading File: {invenFile.split("\\")[-1]} ... "
+    yield f"- Reading File: {invenFile.split("/")[-1]} ... "
     yield "Read Files Completion:     75%|### | 3/4"
     df_Inven = utilsExe.read_excel(invenFile)
     if filterVendor: df_Inven = df_Inven[(df_Inven[invenVendorCol] == filterVendor)].reset_index()
@@ -56,8 +56,8 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
         'Part#': df_dimenFile[dimenCols['Part# Column']],
         'Part Desc.': df_dimenFile[dimenCols['Desc. Column']],
         'Part Category': "",
-        'Sold 1': 0,
-        'Sold 2': 0,
+        'Wholesale Sold': 0,
+        'Service Sold': 0,
         'Total Sold': 0,
         'OH Inventory': 0,
         'SKU Count': 0,
@@ -588,6 +588,7 @@ def GreenBlueAllocation(df_Main, df_binData):
         partHeight = partData['Height'].values[0]
         partWidth = partData['Width'].values[0]
         partDepth = partData['Depth'].values[0]
+        partVolume = partHeight * partWidth * partDepth 
         binType = partData['Bin Type'].values[0]
         storageType = partData['StorageType'].values[0]
         partOHInven = partData['OH Inventory'].values[0]
@@ -608,8 +609,7 @@ def GreenBlueAllocation(df_Main, df_binData):
 
         if partsAllocated > 0: # & (binData['Availiability Flag'].values[0] == "Yes"):    # If Actual Bin is Availiable
             binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
-            remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
-            partVolume = partHeight * partWidth * partDepth 
+            remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin      
             totalPartVolume = partOHInven * partVolume
             numBins = round(totalPartVolume / binVolume, 3)
             partsAllocated = min(floor(remainingBinVolume / partVolume), partOHInven)
