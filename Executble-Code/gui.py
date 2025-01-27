@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from applyZoningStorageFunc import applyZoningStorageFunc
+from applyZoningStorageFunc import applyZoningStorageFunc, actualBinAllocation
 import json
 from threading import Thread
+from pandas import DataFrame
 
 def string_to_json(config_str):
     try:
@@ -150,11 +151,13 @@ class MainGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Stockmap GUI")
-        
+        self.aSZDone = False
+        self.df_Main = None
+
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Open Config Window", command=self.open_config_window)
+        self.open_button = tk.Button(self.button_frame, text="Open Config Window", command=self.open_config_window, state="disabled")
         self.open_button.pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
@@ -166,7 +169,7 @@ class MainGUI:
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Actual Bin Allocation")
+        self.open_button = tk.Button(self.button_frame, text="Actual Bin Allocation", command=self.aBA)
         self.open_button.pack(side=tk.LEFT, padx=10)
 
         self.log_label = tk.Label(self.root, text="Log (Info/Error):")
@@ -174,6 +177,7 @@ class MainGUI:
 
         self.log_text = tk.Text(self.root, height=15)
         self.log_text.pack()
+        self.log_text.config(width=100)
 
         # self.progress_label = tk.Label(self.root, text="Process:")
         # self.progress_label.pack(pady=20)
@@ -181,16 +185,63 @@ class MainGUI:
         self.progress_text = tk.Text(self.root, height=1)
         self.progress_text.pack()
 
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def on_closing(self):
+        try:
+            if self.thread and self.thread.is_alive():
+                self.stop_thread = True
+                self.thread.join()
+                self.root.destroy()
+        except Exception:
+            # If no thread is running, we can close immediately
+            self.root.destroy()
+
+
     def open_config_window(self):
         ConfigWindow()
 
     def aSZ(self):
-        thread = Thread(target=self.aSZMain)
-        thread.start()
+        self.thread = Thread(target=self.aSZMain)
+        self.thread.start()
+        
 
     def aSZMain(self):
         self.log_text.insert(tk.END, "Process Started... Reading Files... \n")
         generator = applyZoningStorageFunc(config)
+        while True:
+            try:
+                message = next(generator)
+                # if "Completion:" in message:
+                #     #new_mes = "\n".join([line for line in self.process_text.get(1.0, tk.END).split("\n") if "Completion:" not in line])
+                #     self.log_text.insert(tk.END, message + "\n")
+                #     self.log_text.see(tk.END)
+                #     continue
+                # self.process_text.insert(tk.END, message + "\n")
+                # self.process_text.see(tk.END)
+                if message[0] == "Return": self.df_Main = message[1]; continue
+                if "Completion:" in message:
+                    self.progress_text.insert(tk.END, '\n' + message)
+                    self.progress_text.see(tk.END)
+                    continue
+                self.log_text.insert(tk.END, message + '\n')
+                self.log_text.see(tk.END)
+            except StopIteration:
+                break
+            except Exception as e:
+                self.log_text.insert(tk.END, e)
+                self.log_text.see(tk.END)
+            self.aSZDone = True
+        
+
+    def aBA(self):
+        if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zoning and Storage Button\n"); return
+        self.thread = Thread(target=self.aSZMain)
+        self.thread.start()
+
+    def aBAMain(self):
+        self.log_text.insert(tk.END, "Process Started... Reading Bin Data... \n")
+        generator = actualBinAllocation(self.df_Main)
         while True:
             try:
                 message = next(generator)
@@ -212,6 +263,7 @@ class MainGUI:
             # except Exception as e:
             #     self.log_text.insert(tk.END, e)
             #     self.log_text.see(tk.END)
+        self.thread.terminate()
 
     def run(self):
         self.root.mainloop()

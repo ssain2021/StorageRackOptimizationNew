@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from pandas import to_numeric, DataFrame
+from pandas import to_numeric, DataFrame, concat
 from numpy import random
 #import math
 #import openpyxl
@@ -31,21 +31,22 @@ vendor = 'FOR'
 
 def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1VendorCol, sold2VendorCol, invenVendorCol, filterVendor):
     yield "Read Files Completion:     0%|    | 0/4"
+    yield f"Reading File: {dimenFile.split("\\")[-1]} ... "
     df_dimenFile = utilsExe.read_excel(dimenFile)      
     if filterVendor: df_dimenFile = df_dimenFile[(df_dimenFile[dimenVendorCol] == filterVendor)].reset_index()
-    yield "- Dimension File Read"
+    yield f"Reading File: {soldFile1.split("\\")[-1]} ... "
     yield "Read Files Completion:     25%|#   | 1/4"
     df_soldFile1 = utilsExe.read_excel(soldFile1)
     if filterVendor: df_soldFile1 = df_soldFile1[(df_soldFile1[sold1VendorCol] == filterVendor)].reset_index()
-    yield "- Sold File 1 Read"
+    yield f"Reading File: {soldFile2.split("\\")[-1]} ... "
     yield "Read Files Completion:     50%|##  | 2/4"
     df_soldFile2 = utilsExe.read_excel(soldFile2)
     if filterVendor: df_soldFile2 = df_soldFile2[(df_soldFile2[sold2VendorCol] == filterVendor)].reset_index()
-    yield "- Sold File 2 Read"
+    yield f"Reading File: {invenFile.split("\\")[-1]} ... "
     yield "Read Files Completion:     75%|### | 3/4"
     df_Inven = utilsExe.read_excel(invenFile)
     if filterVendor: df_Inven = df_Inven[(df_Inven[invenVendorCol] == filterVendor)].reset_index()
-    yield "- Inventory File Read"
+    yield "DONE Reading All Data Files..."
     yield "Read Files Completion:     100%|#####| 4/4"
     yield df_dimenFile, df_soldFile1, df_soldFile2, df_Inven
 
@@ -239,6 +240,8 @@ def applyStorage(df_Main):
     for i in tqdm(range(df_Main.shape[0]), desc="Storage Apply Completion", file=output):
     #for i in range(df_Main.shape[0]):
         yield output.getvalue().split('\r')[-1]
+        if i == 5: 
+            return
         depth = df_Main.loc[i, "Depth"]
         height = df_Main.loc[i, "Height"]
         width = df_Main.loc[i, "Width"]
@@ -288,7 +291,7 @@ def applyZoningStorageFunc(config):
         except StopIteration:
             break
     # df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
-    yield "Files Read... Creating Main Merged Dataset"
+    yield "Creating Main Merged Dataset... "
     df_Main = None
     generator = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
     while True:
@@ -316,5 +319,547 @@ def applyZoningStorageFunc(config):
             break
     yield "Storage Allocation Done"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
+    yield "Return", df_Main
     
+
+def Bin_Data():
     
+    # @ Do Actual Storage Allocation based on Inventory, Number of Bins availiable, Handle Overflow, etc...
+
+    df_binData = DataFrame(columns=['Bin Label', 'Bin Category', 'Total Bins', 'Filled Amount', 'Bin Order', 'Bin Location', 'Availiability Flag'])
+
+    # * High-Density Drawers (2)
+    binData = [ 
+        {'Bin Label': 'D362406', 'Bin Category': 'Drawer', 'Total Bins': 5, 'Filled Amount': 0, 'Bin Order': 1, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': 'D482406', 'Bin Category': 'Drawer', 'Total Bins': 4, 'Filled Amount': 0, 'Bin Order': 2, 'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    ]
+    # * Clip-Shelving (6)
+    binData.extend([
+        {'Bin Label': 'C361215', 'Bin Category': 'Clip', 'Total Bins': 4, 'Filled Amount': 0, 'Bin Order': 3, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': 'C361815', 'Bin Category': 'Clip', 'Total Bins': 6, 'Filled Amount': 0, 'Bin Order': 4, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': 'C362415', 'Bin Category': 'Clip', 'Total Bins': 8, 'Filled Amount': 0.0, 'Bin Order': 5, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},    
+        {'Bin Label': 'C481215', 'Bin Category': 'Clip', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 6, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},  
+        {'Bin Label': 'C481815', 'Bin Category': 'Clip', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 7, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},   
+        {'Bin Label': 'C482415', 'Bin Category': 'Clip', 'Total Bins': 7, 'Filled Amount': 0.0, 'Bin Order': 8, 'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    ])
+
+    # * Bulk-Storage (18)
+    binData.extend([
+    {'Bin Label': 'B482448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 9, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B483648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 10, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B484248', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 11, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B484848', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 12, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B487248', 'Bin Category': 'Bulk', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 13, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B489648', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 14, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B722448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 15, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B723648', 'Bin Category': 'Bulk', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 16, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B724248', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 17, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B724848', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 18, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B727248', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 19, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B729648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 20, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B962448', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 21, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B963648', 'Bin Category': 'Bulk', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 22, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B964248', 'Bin Category': 'Bulk', 'Total Bins': 7, 'Filled Amount': 0.0, 'Bin Order': 23, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B964848', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 24, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B967248', 'Bin Category': 'Bulk', 'Total Bins': 6, 'Filled Amount': 0.0, 'Bin Order': 25, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+    {'Bin Label': 'B969648', 'Bin Category': 'Bulk', 'Total Bins': 4, 'Filled Amount': 0.0, 'Bin Order': 26, 'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    ])
+
+    # * Specialty (7) TR
+    binData.extend([
+        {'Bin Label': 'BR484816', 'Bin Category': 'Battery', 'Total Bins': 14, 'Filled Amount': 0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': 'TR48', 'Bin Category': 'Tire', 'Total Bins': 6, 'Filled Amount': 0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': "TR72", 'Bin Category': 'Tire', 'Total Bins': 6, 'Filled Amount': 0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},
+        {'Bin Label': 'BC967248', 'Bin Category': 'Bumper Cover', 'Total Bins': 3, 'Filled Amount': 0.0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},  
+        {'Bin Label': 'BH967280', 'Bin Category': 'Hood', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},   
+        {'Bin Label': 'HS06', 'Bin Category': 'Hanging', 'Total Bins': 5, 'Filled Amount': 0.0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'},   
+        {'Bin Label': 'HS12', 'Bin Category': 'Hanging', 'Total Bins': 7, 'Filled Amount': 0.0, 'Bin Order': 0, 'Bin Location': 'None', 'Availiability Flag': 'Yes'}
+    ])
+
+    # Append the Data to the DF
+    df_binData = concat([df_binData, DataFrame(binData)], ignore_index=True)
+    df_binData['Total Bins'] = random.choice(range(40, 400), df_binData.shape[0])
+    return df_binData
+
+
+def RedZoneAllocation(df_Main, df_binData):
+        
+    ## @ Red Hot, Red, Orange, and Yellow Zone Non-Specialty Parts
+    for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Red Hot') | (df_Main['Zone'] == 'Red') | (df_Main['Zone'] == 'Orange') | (df_Main['Zone'] == 'Yellow'), 'Part#'], "Completion"):
+        # Get & Set Variables
+        actualBin =  ""
+        overflowBin = ""
+        overflowComment = ""
+
+        partData = df_Main[df_Main['Part#'] == pn]
+        partHeight = partData['Height'].values[0]
+        partWidth = partData['Width'].values[0]
+        partDepth = partData['Depth'].values[0]
+        partVolume = partHeight * partWidth * partDepth 
+        binType = partData['Bin Type'].values[0]
+        storageType = partData['StorageType'].values[0]
+        partOHInven = partData['OH Inventory'].values[0]
+
+
+        # ~ Base Continue Case - If no Storage Assignment, no Inventory Parts or is Specialty Part
+        if (binType == "") or ("Specialty Storage" in storageType) or (partOHInven <= 0):     
+            continue
+
+        binData = df_binData.loc[df_binData['Bin Label'] == binType]
+        totalBinOfType = binData['Total Bins'].values[0]
+        filledAmtOfBin = binData['Filled Amount'].values[0]
+        binOrder = binData['Bin Order'].values[0]
+        flagAvail = binData['Availiability Flag'].values[0]
+
+        # Calculate Variables
+        binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+        remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+        partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+        if partsAllocated > 0:   # * If Actual Bin is Availiable
+            # Calculate Variables
+            totalPartVolume = partOHInven * partVolume
+            actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
+            numBins = round(totalPartVolume / binVolume, 3)
+
+            # Set Values
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
+            actualBin = f"{binType} ({actualBinRequired}, {partsAllocated})"
+
+            if filledAmtOfBin + actualBinRequired >= (totalBinOfType - 0.01): # If Bin is FULL, Reset Flag
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+            if (filledAmtOfBin + numBins) > (totalBinOfType- 0.01):   # * If Overflow (Actual Bin can't fit all Parts) (Only 1)
+                overflowParts = partOHInven - partsAllocated
+                
+                # Find next availiable BIN to  handle overflow parts
+                binFound = False
+                for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                    # Calculate Variables
+                    binData = df_binData[df_binData['Bin Label'] == binType1]
+                    totalBinOfType = binData['Total Bins'].values[0]
+                    filledAmtOfBin = binData['Filled Amount'].values[0]
+                    binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                    remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                    if partsAllocated > 0:   # If Actual Bin is Availiable
+                        binFound = True
+                        break
+                    #  OLD Code
+                    # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                    #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                    #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                    #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                    #     if (fillAmt < (totalBin - 0.01)):
+                    #         break
+
+                if not (binFound):
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = f"Part1- No More Available/Fitting Bins"
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{overflowParts} Parts Left; No Bins availiable to fit"
+                    continue
+
+                # Get & Calculate Variables
+                binType = binData['Bin Label'].values[0]
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                
+                binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+                actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
+
+                # Add  FilledAmount for OverFlow Bin  
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
+                overflowBin = f"{binType} ({actualBinRequired}, {partsAllocated})"
+            
+                # If more overflow
+                leftParts = overflowParts - partsAllocated
+                if leftParts > 0:
+                    binsNeeded = round(leftParts * partVolume / binVolume, 3)
+                    overflowComment = f"Second Overflow: {leftParts} Parts Left; {binsNeeded} quantity of {binType} Bin Needed;"
+                
+                if filledAmtOfBin + actualBinRequired >= (totalBinOfType - 0.01): 
+                    df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+        else:    # * If Actual Bin is not avaialble
+            binFound = False
+            for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                # Calculate Variables
+                binData = df_binData[df_binData['Bin Label'] == binType1]
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                if partsAllocated > 0:
+                    binFound = True
+                    break
+                #  OLD Code
+                # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                #     if (fillAmt < (totalBin - 0.01)):
+                #         break
+
+            if not (binFound):
+                df_Main.loc[df_Main['Part#'] == pn, 'Actual Bin Allocation'] = "Part2- No More Available/Fitting Bins"
+                df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = "Part2- No More Available/Fitting Bins"
+                df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{partOHInven} Parts Left; No Bins availiable to fit"
+                continue
+
+            binType = binData['Bin Label'].values[0]
+            totalBinOfType = binData['Total Bins'].values[0]
+            filledAmtOfBin = binData['Filled Amount'].values[0]
+            binOrder = binData['Bin Order'].values[0]
+            binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+            remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume   ## Check for Remaining Vol in Bin 
+            partVolume = partHeight * partWidth * partDepth 
+            totalPartVolume = partOHInven * partVolume
+            numBins = round(totalPartVolume / binVolume, 3)         ### Number of Bins Required to fill Inventry Parts
+            partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+            actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
+            
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
+            actualBin = f"{binType} ({actualBinRequired}, {partsAllocated})"
+
+            if filledAmtOfBin + actualBinRequired >= (totalBinOfType - 0.01): 
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+            if filledAmtOfBin + numBins > totalBinOfType:   # * If Overflow (Actual Bin can't fit all Parts) (Only 1)
+                overflowParts = partOHInven - partsAllocated
+                for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                    # Calculate Variables
+                    binData = df_binData[df_binData['Bin Label'] == binType1]
+                    totalBinOfType = binData['Total Bins'].values[0]
+                    filledAmtOfBin = binData['Filled Amount'].values[0]
+                    binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                    remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                    if partsAllocated > 0:
+                        binFound = True
+                        break
+                    #  OLD Code
+                    # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                    #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                    #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                    #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                    #     if (fillAmt < (totalBin - 0.01)):
+                    #         break
+
+                if not (binFound):
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = f"Part3- No More Available/Fitting Bins"
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{overflowParts} Parts Left; No Bins availiable to fit"
+                    continue
+
+                binType = binData['Bin Label'].values[0]
+                binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+                actualBinRequired = round((partsAllocated * partVolume) / binVolume, 3)
+                
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += actualBinRequired
+                overflowBin = f"{binType} ({actualBinRequired}, {partsAllocated})"
+            
+                leftParts = overflowParts - partsAllocated
+                if leftParts > 0:
+                    binsNeeded = round(leftParts * partVolume / binVolume, 2)
+                    overflowComment = f"Second Overflow: {leftParts} Parts Left; {binsNeeded} quantity of {binType} Bin Needed;"
+
+                if filledAmtOfBin + actualBinRequired >= (totalBinOfType - 0.01): 
+                    df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+        df_Main.loc[df_Main['Part#'] == pn, 'Actual Bin Allocation'] = actualBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = overflowBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = overflowComment
+
+    # ~1 min 15 secs
+
+
+def GreenBlueAllocation(df_Main, df_binData):
+  
+    ## @ Green and Blue Zone Non-Specialty Parts
+    for pn in tqdm(df_Main.loc[(df_Main['Zone'] == 'Green') | (df_Main['Zone'] == 'Blue'), 'Part#'], "Completion"):
+        # Get Variable
+        actualBin =  ""
+        overflowBin = ""
+        overflowComment = ""
+
+        partData = df_Main[df_Main['Part#'] == pn]
+        partHeight = partData['Height'].values[0]
+        partWidth = partData['Width'].values[0]
+        partDepth = partData['Depth'].values[0]
+        binType = partData['Bin Type'].values[0]
+        storageType = partData['StorageType'].values[0]
+        partOHInven = partData['OH Inventory'].values[0]
+
+        ## * If Inventry Qty is zero, Go to Next Part -- Handle Specialty Storage separately 
+        if (binType == "") or ("Specialty Storage" in storageType) or (partOHInven <= 0):     
+            continue
+
+        binData = df_binData.loc[df_binData['Bin Label'] == binType]
+        totalBinOfType = binData['Total Bins'].values[0]
+        filledAmtOfBin = binData['Filled Amount'].values[0]
+        binOrder = binData['Bin Order'].values[0]
+    
+        # Calculate Variables
+        binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+        remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+        partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+        if partsAllocated > 0: # & (binData['Availiability Flag'].values[0] == "Yes"):    # If Actual Bin is Availiable
+            binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+            remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+            partVolume = partHeight * partWidth * partDepth 
+            totalPartVolume = partOHInven * partVolume
+            numBins = round(totalPartVolume / binVolume, 3)
+            partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+            binRequired = round((partsAllocated * partVolume) / binVolume, 3)    
+
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binRequired
+            actualBin = f"{binType} ({binRequired}, {partsAllocated})"
+
+            if filledAmtOfBin + ((partsAllocated * partVolume) / binVolume) >= (totalBinOfType - 0.01):    ### @ ACtual BIN
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+            ###  Handle OVERFLOW  condition (Only 1 Overflow) 
+            if filledAmtOfBin + numBins > totalBinOfType:
+                
+                overflowParts = partOHInven - partsAllocated
+                for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                    # Calculate Variables
+                    binData = df_binData[df_binData['Bin Label'] == binType1]
+                    totalBinOfType = binData['Total Bins'].values[0]
+                    filledAmtOfBin = binData['Filled Amount'].values[0]
+                    binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                    remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                    if partsAllocated > 0:   # @ If Actual Bin is Availiable
+                        binFound = True
+                        break
+                    #  OLD Code
+                    # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                    #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                    #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                    #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                    #     if (fillAmt < (totalBin - 0.01)):
+                    #         break
+
+                if not (binFound):
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = f"Part1-No More Available/Fitting Bins"
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{overflowParts} Parts Left; No Bins availiable to fit"
+                    continue
+
+                binType = binData['Bin Label'].values[0]
+                binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+                binRequired = round((partsAllocated * partVolume) / binVolume, 3)  
+
+                overflowBin = f"{binType} ({binRequired}, {partsAllocated})"
+            
+                leftParts = overflowParts - partsAllocated
+                if leftParts > 0:
+                    binsNeeded = round(leftParts * partVolume / binVolume, 3)
+                    overflowComment = f"Second Overflow: {leftParts} Parts Left; {binsNeeded} quantity of {binType} Bin Needed;"
+                
+                if (filledAmtOfBin + binRequired) >= (totalBinOfType - 0.01): 
+                    df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+        else:    ## ^  If  suggested Bin Is NOT Avaialble.  Pick Next Available Bin and Process
+            for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                # Calculate Variables
+                binData = df_binData[df_binData['Bin Label'] == binType1]
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                if partsAllocated > 0:   # @ If Actual Bin is Availiable
+                    binFound = True
+                    break
+                #  OLD Code
+                # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                #     if (fillAmt < (totalBin - 0.01)):
+                #         break
+
+            if not (binFound):            
+                df_Main.loc[df_Main['Part#'] == pn, 'Actual Bin Allocation'] = "Part2-No More Available/Fitting Bins"
+                df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = "Part2-No More Available/Fitting Bins"
+                df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{partOHInven} Parts Left; No Bins availiable to fit"
+                continue
+
+            binType = binData['Bin Label'].values[0]
+            totalBinOfType = binData['Total Bins'].values[0]
+            filledAmtOfBin = binData['Filled Amount'].values[0]
+            binOrder = binData['Bin Order'].values[0]
+            binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+            remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume   ## Check for Remaining Vol in Bin 
+            partVolume = partHeight * partWidth * partDepth 
+            totalPartVolume = partOHInven * partVolume
+            numBins = round(totalPartVolume / binVolume, 3)         ### Number of Bins Required to fill Inventry Parts
+            partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+            binRequired = round((partsAllocated * partVolume) / binVolume, 3)  
+            
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binRequired
+            actualBin = f"{binType} ({binRequired}, {partsAllocated})"
+
+            if (filledAmtOfBin + binRequired) >= (totalBinOfType - 0.01):
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+            ###  Handle OVERFLOW  condition (Only 1 Overflow) 
+            if filledAmtOfBin + numBins > totalBinOfType:
+                overflowParts = partOHInven - partsAllocated
+                for binType1 in df_binData.loc[(df_binData['Bin Order'] > binOrder), 'Bin Label']:
+                    # Calculate Variables
+                    binData = df_binData[df_binData['Bin Label'] == binType1]
+                    totalBinOfType = binData['Total Bins'].values[0]
+                    filledAmtOfBin = binData['Filled Amount'].values[0]
+                    binVolume = fillFactor * (float(binType1[1:3]) * float(binType1[3:5]) * float(binType1[5:7]))
+                    remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                    partsAllocated = min(math.floor(remainingBinVolume / partVolume), partOHInven)
+
+                    if partsAllocated > 0:   # @ If Actual Bin is Availiable
+                        binFound = True
+                        break
+                    #  OLD Code
+                    # if (df_binData[df_binData['Bin Label'] == binType1]['Availiability Flag'].values[0] == 'Yes'):
+                    #     binData = df_binData[df_binData['Bin Label'] == binType1]
+                    #     fillAmt = df_binData[df_binData['Bin Label'] == binType1]['Filled Amount'].values[0] 
+                    #     totalBin = df_binData[df_binData['Bin Label'] == binType1]['Total Bins'].values[0] 
+                    #     if (fillAmt < (totalBin - 0.01)):
+                    #         break
+
+                if not (binFound):
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = f"Part3-No More Available/Fitting Bins"
+                    df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = f"{overflowParts} Parts Left; No Bins availiable to fit"
+                    continue
+
+                binType = binData['Bin Label'].values[0]
+                binVolume = fillFactor * (float(binType[1:3]) * float(binType[3:5]) * float(binType[5:7]))
+                totalBinOfType = binData['Total Bins'].values[0]
+                filledAmtOfBin = binData['Filled Amount'].values[0]
+                remainingBinVolume = float(totalBinOfType - filledAmtOfBin) * binVolume  # Check for Remaining Vol in Bin 
+                partsAllocated = min(math.floor(remainingBinVolume / partVolume), overflowParts)
+                binRequired = round((partsAllocated * partVolume) / binVolume, 3) 
+
+                ## @ ADD Below Filled Amount for Overflow bins
+                df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binRequired
+                overflowBin = f"{binType} ({binRequired}, {partsAllocated})"
+            
+                leftParts = overflowParts - partsAllocated
+                if leftParts > 0:
+                    binsNeeded = round(leftParts * partVolume / binVolume, 3)
+                    overflowComment = f"Second Overflow: {leftParts} Parts Left; {binsNeeded} quantity of {binType} Bin Needed;"
+
+                if (filledAmtOfBin + binRequired) >= (totalBinOfType - 0.01):
+                    df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+        df_Main.loc[df_Main['Part#'] == pn, 'Actual Bin Allocation'] = actualBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = overflowBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = overflowComment
+
+        
+    # ~16 mins 12 secs
+
+
+def SpecialtyAllocation(df_Main, df_binData):
+
+    ## @ All Zone Specialty Parts
+    for pn in df_Main['Part#']:
+        # Get & Set Variables
+        actualBin =  ""
+        overflowBin = ""
+        overflowComment = ""
+
+        partData = df_Main[df_Main['Part#'] == pn]
+        partHeight = partData['Height'].values[0]
+        partWidth = partData['Width'].values[0]
+        partDepth = partData['Depth'].values[0]
+        binType = partData['Bin Type'].values[0]
+        partOHInven = partData['OH Inventory'].values[0]
+        partSKUCount = partData['SKU Count'].values[0]
+
+        # ~ Base Continue Case - If no Storage Assignment, no Inventory Parts or is not Specialty Part
+        if (binType == "") or (partOHInven <= 0):     
+            continue
+        if (all([binLabelTypes not in binType.lower() for binLabelTypes in ['br', 'tr', 'hs', 'bc', 'bh']])):     
+            continue
+
+        binData = df_binData.loc[df_binData['Bin Label'] == binType]
+        totalBinOfType = binData['Total Bins'].values[0]
+        filledAmtOfBin = binData['Filled Amount'].values[0]
+
+        ## * Calculation for Battery
+        if "br" in binType.lower():
+            remainingBinWidth = (totalBinOfType - filledAmtOfBin) * float(binType[4:6])
+            partsAllocated = min(math.floor(remainingBinWidth / partWidth), partOHInven)
+            binsRequired = round((partsAllocated * partWidth) / float(binType[4:6]), 4)
+            partsLeft = partOHInven - partsAllocated
+            overflowBinsNeeded = partsLeft / float(binType[2:4])
+        ## * Calculation for Tire
+        if "tr" in binType.lower():
+            remainingBinWidth = (totalBinOfType - filledAmtOfBin) * float(binType[2:4])
+            partsAllocated = min(math.floor(remainingBinWidth / partWidth), partOHInven)
+            binsRequired = round((partsAllocated * partWidth) / float(binType[2:4]), 4)
+            partsLeft = partOHInven - partsAllocated
+            overflowBinsNeeded = round(partsLeft / float(binType[2:4]), 3)
+        ## * Calculation for Hanging Storage
+        if "hs" in binType.lower():
+            partsAllocated = min(math.floor(totalBinOfType - filledAmtOfBin), partOHInven)
+            binsRequired = round(partsAllocated, 4)
+            partsLeft = partOHInven - partsAllocated
+            overflowBinsNeeded = partsLeft
+        ## * Calculation for Bumper Cover & Hoods
+        if ("bc" in binType.lower()) | ("bh" in binType.lower()):
+            partVolume = partHeight * partWidth * partDepth 
+            binVol = fillFactor * (float(binType[2:4]) * float(binType[4:6]) * float(binType[6:8]))
+            partsAllocated = min(math.floor(((totalBinOfType - filledAmtOfBin) * binVol) / partVolume), partOHInven)
+            binsRequired = round((partsAllocated * partVolume) / binVol, 4)
+            partsLeft = partOHInven - partsAllocated
+            overflowBinsNeeded = round((partsLeft * partVolume) / binVolume, 3)
+
+        ## * Main Data Update
+        if filledAmtOfBin + binsRequired >= (totalBinOfType - 0.01): # Update Availiability Flag, if full
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Availiability Flag'] = 'No'
+
+        if partsAllocated > 0: # If any parts allocated
+            df_binData.loc[df_binData['Bin Label'] == binType, 'Filled Amount'] += binsRequired
+            actualBin = f"{binType} ({binsRequired}, {partsAllocated})"
+        else:
+            actualBin = "SP- No More Available/Fitting Bins" # If no parts can be allocated
+
+        if partsLeft > 0: # If Overflow
+            overflowBin = "SP- No More Available/Fitting Bins"
+            overflowComment = f"{partOHInven - partsAllocated} Parts Left; {overflowBinsNeeded} quantity of {binType} Bin Needed;"
+
+        df_Main.loc[df_Main['Part#'] == pn, 'Actual Bin Allocation'] = actualBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Bins'] = overflowBin
+        df_Main.loc[df_Main['Part#'] == pn, 'Overflow Comment'] = overflowComment
+            
+
+    # ~ 11 mins 28 sec
+
+
+
+def actualBinAllocation(df_Main):
+    df_binData = Bin_Data()
+    yield "Bins Data reading done... "
+    RedZoneAllocation(df_Main, df_binData)
+    yield "Bins Data reading done... "
+    df_binData = Bin_Data()
+    yield "Bins Data reading done... "
+    df_binData = Bin_Data()
+    yield "Bins Data reading done... "
