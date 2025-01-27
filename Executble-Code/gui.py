@@ -151,28 +151,37 @@ class MainGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Stockmap GUI")
+                # Create a title label with larger font
+        self.title_label = tk.Label(
+            self.root, text="Stockmap GUI", font=("Helvetica", 20, "bold"), fg="#0066cc") # Optional: Set a custom color
+        
+        self.title_label.pack(pady=20)  # Add some padding around the label
         self.aSZDone = False
         self.df_Main = None
+        self.buttons = {}
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Open Config Window", command=self.open_config_window, state="disabled")
-        self.open_button.pack(side=tk.LEFT, padx=10)
+        self.buttons['config'] = tk.Button(self.button_frame, text="Open Config Window", font=("Helvetica", 11, "bold"), command=self.open_config_window, state="disabled")
+        self.buttons['config'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Apply Zone and Storage", command=self.aSZ)
-        self.open_button.pack(side=tk.LEFT, padx=10)
+        self.buttons['apply'] = tk.Button(self.button_frame, text="Apply Zone and Storage", font=("Helvetica", 11, "bold"), command=self.start_aSZ_process)
+        self.buttons['apply'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
 
-        self.open_button = tk.Button(self.button_frame, text="Actual Bin Allocation", command=self.aBA)
-        self.open_button.pack(side=tk.LEFT, padx=10)
+        self.buttons['allocation'] = tk.Button(self.button_frame, text="Actual Bin Allocation", font=("Helvetica", 11, "bold"), command=self.aBA)
+        self.buttons['allocation'].pack(side=tk.LEFT, padx=10)
+            
+        self.buttons['close'] = tk.Button(self.button_frame, text="Close", font=("Helvetica", 11, "bold"), command=self.close)
+        self.buttons['close'].pack(side=tk.LEFT, padx=10)
 
-        self.log_label = tk.Label(self.root, text="Log (Info/Error):")
+        self.log_label = tk.Label(self.root, text="Log (Info / Error):", font=("Helvetica", 11, "bold"))
         self.log_label.pack(pady=20)
 
         self.log_text = tk.Text(self.root, height=15)
@@ -181,11 +190,25 @@ class MainGUI:
 
         # self.progress_label = tk.Label(self.root, text="Process:")
         # self.progress_label.pack(pady=20)
-
         self.progress_text = tk.Text(self.root, height=1)
         self.progress_text.pack()
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+
+    def start_aSZ_process(self):
+        self.disable_all_buttons()
+        self.thread = Thread(target=self.aSZMain)
+        self.thread.start()
+
+    def disable_all_buttons(self):
+        for button in self.buttons.values():
+            button.config(state="disabled")
+
+    def enable_all_buttons(self):
+        for button in self.buttons.values():
+            button.config(state="active")
+
 
     def on_closing(self):
         try:
@@ -197,13 +220,27 @@ class MainGUI:
             # If no thread is running, we can close immediately
             self.root.destroy()
 
+    def enable_button(self):
+        self.open_button.config(state="active")  # Re-enable the button
+
 
     def open_config_window(self):
         ConfigWindow()
 
+
     def aSZ(self):
         self.thread = Thread(target=self.aSZMain)
         self.thread.start()
+
+    def close(self):
+        try:
+            if self.thread and self.thread.is_alive():
+                self.stop_thread = True
+                self.thread.join()
+                self.root.destroy()
+        except Exception:
+            # If no thread is running, we can close immediately
+            self.root.destroy()
         
 
     def aSZMain(self):
@@ -233,10 +270,14 @@ class MainGUI:
                 self.log_text.see(tk.END)
             self.aSZDone = True
         
+        # After the process is complete, re-enable the button
+        self.root.after(0, self.enable_all_buttons)
+    
+        
 
     def aBA(self):
-        if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zoning and Storage Button\n"); return
-        self.thread = Thread(target=self.aSZMain)
+        if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zone and Storage Button\n"); return
+        self.thread = Thread(target=self.aBAMain)
         self.thread.start()
 
     def aBAMain(self):

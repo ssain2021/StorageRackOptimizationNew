@@ -1,7 +1,7 @@
 from tqdm import tqdm
 from pandas import to_numeric, DataFrame, concat
 from numpy import random
-#import math
+from math import floor
 #import openpyxl
 import utilsExe
 from io import StringIO
@@ -292,7 +292,7 @@ def applyZoningStorageFunc(config):
             break
     # df_dimenFile, df_soldFile1, df_soldFile2, df_Inven = readFiles(config['Dimensions Config']['File Path'], config['Sold File 1 Config']['File Path'], config['Sold File 2 Config']['File Path'], config['Inventory Config']['File Path'], config['Dimensions Config']['Columns']['Vendor Column'], config['Sold File 1 Config']['Columns']['Vendor Column'], config['Sold File 2 Config']['Columns']['Vendor Column'], config['Inventory Config']['Columns']['Vendor Column'], vendor)
     yield "Creating Main Merged Dataset... "
-    df_Main = None
+    #df_Main = None
     generator = makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, config['Dimensions Config']['Columns'], config['Sold File 1 Config']['Columns'], config['Sold File 2 Config']['Columns'], config['Inventory Config']['Columns'], config['Drop 0 Dimensions'])
     while True:
         try:
@@ -317,7 +317,7 @@ def applyZoningStorageFunc(config):
             yield(message)
         except StopIteration:
             break
-    yield "Storage Allocation Done"
+    yield "DONE- Apply Zone and Storage Allocation Completed..."
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
     yield "Return", df_Main
     
@@ -856,10 +856,15 @@ def SpecialtyAllocation(df_Main, df_binData):
 
 def actualBinAllocation(df_Main):
     df_binData = Bin_Data()
-    yield "Bins Data reading done... "
+    yield "DONE - Bins Data Reading/ Processing..."
+    yield "RED Zone Test Message: " + df_Main.shape[0]
+    yield "STARTING  - Red, Orange, Yellow  Zones BIN Allocation..."
     RedZoneAllocation(df_Main, df_binData)
-    yield "Bins Data reading done... "
-    df_binData = Bin_Data()
-    yield "Bins Data reading done... "
-    df_binData = Bin_Data()
-    yield "Bins Data reading done... "
+    yield "DONE - Red, Orange, Yellow  Zones BIN Allocation..."
+    yield "STARTING  - Green, Blue Zones BIN Allocation..."
+    GreenBlueAllocation(df_Main, df_binData)
+    yield "DONE - Green, Blue Zones BIN Allocation..."
+    yield "STARTING  - Specialty Parts For All Zones BIN Allocation..."    
+    SpecialtyAllocation(df_Main, df_binData)(df_Main, df_binData)
+    yield "DONE - Specialty Parts For All Zones BIN Allocation..."
+
