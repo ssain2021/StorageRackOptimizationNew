@@ -73,10 +73,10 @@ class ConfigWindow:
         self.drop_0_checkbox = ttk.Checkbutton(self.config_frame, variable=self.drop_0_var)
         self.drop_0_checkbox.grid(row=8, column=2)
 
-        self.show_options("Dimensions", 1, "Path") # , "Vendor Column", "Width Column", "Height Column", "Depth Column", "Part# Column", "Desc. Column")
-        self.show_options("Wholesale", 3, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
-        self.show_options("Service", 5, "Path") # , "Vendor Column", "Sold Column", "Part# Column")
-        self.show_options("Inventory", 7, "Path") # , "Vendor Column", "Inventory Column", "Bin Column", "Part# Column")
+        self.show_options("Dimensions", 1, "File Path") # , "Vendor Column", "Width Column", "Height Column", "Depth Column", "Part# Column", "Desc. Column")
+        self.show_options("Wholesale", 3, "File Path") # , "Vendor Column", "Sold Column", "Part# Column")
+        self.show_options("Service", 5, "File Path") # , "Vendor Column", "Sold Column", "Part# Column")
+        self.show_options("Inventory", 7, "File Path") # , "Vendor Column", "Inventory Column", "Bin Column", "Part# Column")
 
         
         tk.Button(self.config_frame, text="Apply Changes", command=self.apply_changes).grid(row=100, column=0, columnspan=2)
@@ -139,8 +139,9 @@ class ConfigWindow:
             label.grid(row=i+1, column=0)
             entry = ttk.Entry(options_frame, textvariable=var)
             entry.grid(row=i+1, column=1)
-            button = ttk.Button(options_frame, text="Browse", command=lambda t=title, o=option: self.browse_file(t, o))
-            button.grid(row=i+1, column=3)
+            if option == "File Path": 
+                button = ttk.Button(options_frame, text="Browse", command=lambda t=title, o=option: self.browse_file(t, o))
+                button.grid(row=i+1, column=3)
             self.var_dict[title][option] = entry
 
     def browse_file(self, title, option):
@@ -167,7 +168,7 @@ class MainGUI:
 
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(pady=20)
-        self.buttons['config'] = tk.Button(self.button_frame, text="Open Config Window", font=("Helvetica", 11, "bold"), command=self.open_config_window)#, state="disabled")
+        self.buttons['config'] = tk.Button(self.button_frame, text="Change File Path", font=("Helvetica", 11, "bold"), command=self.open_config_window)#, state="disabled")
         self.buttons['config'].pack(side=tk.LEFT, padx=10)
 
         self.button_frame = tk.Frame(self.root)
