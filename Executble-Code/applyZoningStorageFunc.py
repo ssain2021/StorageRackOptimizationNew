@@ -56,8 +56,8 @@ def makeFinalData(df_dimenFile, df_soldFile1, df_soldFile2, df_Inven, dimenCols,
         'Part#': df_dimenFile[dimenCols['Part# Column']],
         'Part Desc.': df_dimenFile[dimenCols['Desc. Column']],
         'Part Category': "",
-        'Wholesale Sold': 0,
-        'Service Sold': 0,
+        'Sold 1': 0,
+        'Sold 2': 0,
         'Total Sold': 0,
         'OH Inventory': 0,
         'SKU Count': 0,
@@ -232,7 +232,7 @@ def getStorage(zone, pcate, depth, width, height, ohInven, fillFactor):
 
 def applyStorage(df_Main):
     output = StringIO()
-    for i in tqdm(range(df_Main.shape[0]), desc="Storage Apply Completion", file=output):
+    for i in tqdm(range(df_Main.shape[0]), desc="Storage Requirement Completion", file=output):
         yield output.getvalue().split('\r')[-1]
         depth = df_Main.loc[i, "Depth"]
         height = df_Main.loc[i, "Height"]
@@ -887,5 +887,5 @@ def actualBinAllocation(df_Main):
     yield "Done Actual Bin Allocation for Green & Blue Zones..."    
     yield "Main Logic Completed - Final Dataset converting to Excel"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
-    yield "Process Completed - Final Dataset converted to Excel ✅"
+    yield "Apply Zone and Storage Process COMPLETED - Final Dataset Written To Excel ✅"
     yield "Return", df_Main
