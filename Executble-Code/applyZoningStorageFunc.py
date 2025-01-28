@@ -887,5 +887,5 @@ def actualBinAllocation(df_Main):
     yield "Done Actual Bin Allocation for Green & Blue Zones..."    
     yield "Main Logic Completed - Final Dataset converting to Excel"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
-    yield "Apply Zone and Storage Process COMPLETED - Final Dataset Written To Excel ✅"
+    yield "Process COMPLETED - Final Dataset Written To Excel ✅"
     yield "Return", df_Main

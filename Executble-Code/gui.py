@@ -80,7 +80,7 @@ class ConfigWindow:
 
     def apply_changes(self):
         globals()['config'] = {'Dimensions Config': {
-                        'File Path': self.var_dict["Dimensions"]["Path"].get(),
+                        'File Path': self.var_dict["Dimensions"]["File Path"].get(),
                         'Columns': {
                             'Part# Column':  "Part#", # self.var_dict["Dimensions"]['Part# Column'].get(),
                             'Desc. Column': "Part Desc.", # self.var_dict["Dimensions"
@@ -91,7 +91,7 @@ class ConfigWindow:
                         }
                         },
                  'Sold File 1 Config': {
-                        'File Path': self.var_dict["Wholesale"]["Path"].get(),
+                        'File Path': self.var_dict["Wholesale"]["File Path"].get(),
                         'Columns': {
                             'Part# Column': "Part#", # self.var_dict["Sold File 1"]['Part# Column'].get(),
                             'Vendor Column': "Vendor", # self.var_dict["Sold File 1"]["Vendor Column"].get(),
@@ -99,7 +99,7 @@ class ConfigWindow:
                         }
                         },
                  'Sold File 2 Config': {
-                        'File Path': self.var_dict["Service"]["Path"].get(),
+                        'File Path': self.var_dict["Service"]["File Path"].get(),
                         'Columns': {
                             'Part# Column': "Part#", # self.var_dict["Sold File 2"]['Part# Column'].get(),
                             'Vendor Column': "Vendor", # self.var_dict["Sold File 2"]["Vendor Column"].get(),
@@ -107,7 +107,7 @@ class ConfigWindow:
                         }
                         },
                  'Inventory Config': {
-                        'File Path': self.var_dict["Inventory"]["Path"].get(),
+                        'File Path': self.var_dict["Inventory"]["File Path"].get(),
                         'Columns': {
                             'Part# Column': "Part#", # self.var_dict["Inventory"]['Part# Column'].get(),
                             'Vendor Column': "Vendor", # self.var_dict["Inventory"]["Vendor Column"].get(),
@@ -219,12 +219,12 @@ class MainGUI:
 
 
     def aSZ(self):
-        self.disable_all_buttons()
         self.thread = Thread(target=self.aSZMain)
         self.thread.daemon = True
         self.thread.start()
 
     def aSZMain(self):
+        self.disable_all_buttons()
         self.log_text.insert(tk.END, "Process Started... Reading Files... \n")
         generator = applyZoningStorageFunc(globals()['config'])
         while True:
@@ -264,6 +264,7 @@ class MainGUI:
         self.thread.start()
 
     def aBAMain(self):
+        self.disable_all_buttons()
         self.log_text.insert(tk.END, "Process Started... Reading Bins Data... \n")
         generator = actualBinAllocation(self.df_Main)
         while True:
