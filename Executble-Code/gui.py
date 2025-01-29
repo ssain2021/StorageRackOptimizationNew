@@ -240,6 +240,8 @@ class MainGUI:
                     continue
                 self.log_text.insert(tk.END, message + '\n')
                 self.log_text.see(tk.END)
+                self.progress_text.insert(tk.END, '\n' + message.upper())
+                self.progress_text.see(tk.END)
             except StopIteration:
                 break
             except Exception as e:
