@@ -254,7 +254,7 @@ class MainGUI:
    
         
     def aBA(self):
-        if not self.aSZDone: self.log_text.insert(tk.END, "Please first run - Apply Zone and Storage Button\n"); return
+        if not self.aSZDone: self.log_text.insert(tk.END, "Please First Run - Apply Zone and Storage Process\n"); return
         self.thread = Thread(target=self.aBAMain)
         self.thread.daemon = True
         self.thread.start()

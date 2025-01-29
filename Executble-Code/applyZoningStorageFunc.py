@@ -46,7 +46,7 @@ def readFiles(dimenFile, soldFile1, soldFile2, invenFile, dimenVendorCol, sold1V
     yield "Read Files Completion:     75%|### | 3/4"
     df_Inven = utilsExe.read_excel(invenFile)
     if filterVendor: df_Inven = df_Inven[(df_Inven[invenVendorCol] == filterVendor)].reset_index()
-    yield "- Reading all Files Done"
+    yield "- Reading all Files DONE"
     yield "Read Files Completion:     100%|#####| 4/4"
     yield df_dimenFile, df_soldFile1, df_soldFile2, df_Inven
 
@@ -299,10 +299,10 @@ def applyZoningStorageFunc(config):
     yield f"- Final Dataset Rows Count: {df_Main.shape[0]} 📅"
     yield "Main Merged Dataset Created.... Starting Parts Categorization.... "
     part_categorization(df_Main, 'Part Category')
-    yield "Parts Categorization Done... Starting Zoning of all Parts... 🟥🟧🟨🟩🟦"
+    yield "Parts Categorization DONE... Starting Zoning of all Parts... 🟥🟧🟨🟩🟦"
     vCounts = Apply_Zoning(df_Main, zones, 'Total Sold', 'Zone')
     yield "- Zone Counts: " + str(vCounts)
-    yield "Apply Zoning Done.... Starting Part Storage Allocation... "
+    yield "Apply Zoning DONE.... Starting Part Storage Allocation... "
     generator = applyStorage(df_Main)
     while True:
         try:
@@ -310,10 +310,10 @@ def applyZoningStorageFunc(config):
             yield(message)
         except StopIteration:
             break
-    yield "Part Storage Allocation Completed...."
-    yield "Main Logic Completed - Final Dataset converting to Excel"
+    yield "Part Storage Allocation COMPLETED...."
+    yield "Converting Final Dataset to Excel"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
-    yield "Process Completed - Final Dataset converted to Excel ✅"
+    yield "Apply Zone and Storage Process COMPLETED - Final Dataset converted to Excel ✅"
     yield "Return", df_Main
     
 
@@ -862,7 +862,7 @@ def actualBinAllocation(df_Main):
         except StopIteration:
             break
     #yield f"RED Zone Test Message: {df_Main.shape[0]}"
-    yield "Done Actual Bin Allocation for Red Family Zones... Starting for Non-Specialty Parts of Green & Blue Zones... 🟩🟦"
+    yield "DONE Actual Bin Allocation for Red Family Zones... Starting for Non-Specialty Parts of Green & Blue Zones... 🟩🟦"
     generator = GreenBlueAllocation(df_Main, df_binData)
     while True:
         try:
@@ -873,7 +873,7 @@ def actualBinAllocation(df_Main):
                 yield(message)
         except StopIteration:
             break
-    yield "Done Actual Bin Allocation for Green & Blue Zones... Starting for All Zone Specialty Parts... 🟥🟧🟨🟩🟦⭐"    
+    yield "DONE Actual Bin Allocation for Green & Blue Zones... Starting for All Zone Specialty Parts... 🟥🟧🟨🟩🟦⭐"    
     generator = SpecialtyAllocation(df_Main, df_binData)
     while True:
         try:
@@ -884,8 +884,9 @@ def actualBinAllocation(df_Main):
                 yield(message)
         except StopIteration:
             break
-    yield "Done Actual Bin Allocation for Green & Blue Zones..."    
-    yield "Main Logic Completed - Final Dataset converting to Excel"
+    yield "DONE Actual Bin Allocation for Green & Blue Zones..."    
+    yield "Main Logic COMPLETED - Final Dataset converting to Excel"
     df_Main.to_excel('Final_Dataset.xlsx', index=False) 
-    yield "Process COMPLETED - Final Dataset Written To Excel ✅"
-    yield "Return", df_Main
+    # * Write  the Final BINS Dataset into Excel
+    df_binData.to_excel('All_Bins_Data.xlsx', index=False)
+    yield "ActualBinAllocation Process COMPLETED - Final Dataset Written To Excel ✅"
