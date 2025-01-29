@@ -1,7 +1,6 @@
 import tkinter as tk, json
 from tkinter import ttk, filedialog
 from applyZoningStorageFunc import applyZoningStorageFunc, actualBinAllocation
-from sys import exit
 from threading import Thread
 
 
@@ -19,9 +18,7 @@ def string_to_json(config_str):
         config_dict = eval(config_str)
         return config_dict
 
-config = {}
-with open('conf.txt') as conf:
-    config = string_to_json(conf.read())
+
 
 
 
@@ -119,7 +116,7 @@ class ConfigWindow:
                  }
         
         with open('conf.txt', 'w') as conf:
-            conf.write(str(config))
+            conf.write(str(globals()['config']))
         
 
     def show_options(self, title, row, *options):
@@ -193,7 +190,15 @@ class MainGUI:
         self.progress_text = tk.Text(self.root, height=1, width=100, font=('Segoe UI Emoji', 10))
         self.progress_text.pack()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.close)
+
+        try:
+            globals()['config'] = {}
+            with open('conf.txt') as conf:
+                globals()['config'] = string_to_json(conf.read())
+
+            self.root.protocol("WM_DELETE_WINDOW", self.close)
+        except Exception as e:
+            self.log_text.insert(tk.END, e)
 
 
     def disable_all_buttons(self):
@@ -208,8 +213,6 @@ class MainGUI:
         self.config_window = ConfigWindow()
 
     def close(self):
-        # Thread(target=closeThread).start()
-        # @Close the ConfigWindow if it exists
         try:
             self.config_window.root.destroy()
             self.root.destroy()
@@ -230,13 +233,6 @@ class MainGUI:
         while True:
             try:
                 message = next(generator)
-                # if "Completion:" in message:
-                #     #new_mes = "\n".join([line for line in self.process_text.get(1.0, tk.END).split("\n") if "Completion:" not in line])
-                #     self.log_text.insert(tk.END, message + "\n")
-                #     self.log_text.see(tk.END)
-                #     continue
-                # self.process_text.insert(tk.END, message + "\n")
-                # self.process_text.see(tk.END)
                 if message[0] == "Return": self.df_Main = message[1]; continue
                 if "Completion:" in message:
                     self.progress_text.insert(tk.END, '\n' + message)
@@ -244,6 +240,8 @@ class MainGUI:
                     continue
                 self.log_text.insert(tk.END, message + '\n')
                 self.log_text.see(tk.END)
+                self.progress_text.insert(tk.END, '\n' + message.upper())
+                self.progress_text.see(tk.END)
             except StopIteration:
                 break
             except Exception as e:
@@ -253,8 +251,6 @@ class MainGUI:
         
         # After the process is complete, re-enable the button
         self.root.after(0, self.enable_all_buttons)
-        #self.root.update_idletasks()  # Process all idle tasks
-        #self.root.after(100, self.root.update)  # Schedule a GUI update
    
         
     def aBA(self):
@@ -270,13 +266,6 @@ class MainGUI:
         while True:
             try:
                 message = next(generator)
-                # if "Completion:" in message:
-                #     #new_mes = "\n".join([line for line in self.process_text.get(1.0, tk.END).split("\n") if "Completion:" not in line])
-                #     self.log_text.insert(tk.END, message + "\n")
-                #     self.log_text.see(tk.END)
-                #     continue
-                # self.process_text.insert(tk.END, message + "\n")
-                # self.process_text.see(tk.END)
                 if "Completion:" in message:
                     self.progress_text.insert(tk.END, '\n' + message)
                     self.progress_text.see(tk.END)
@@ -285,9 +274,9 @@ class MainGUI:
                 self.log_text.see(tk.END)
             except StopIteration:
                 break
-            # except Exception as e:
-            #     self.log_text.insert(tk.END, e)
-            #     self.log_text.see(tk.END)
+            except Exception as e:
+                self.log_text.insert(tk.END, e)
+                self.log_text.see(tk.END)
         self.thread.terminate()
 
 
