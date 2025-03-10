@@ -51,3 +51,7 @@ zones = {
 ## * Storage Parameters
 tirePercent = 0.5      ##  50% of tires are 33 inches, or more
 fillFactor = 0.7       #  70% Filling, 30% Open Space for DRAWER / RACK / SHELVE
+
+
+
+
